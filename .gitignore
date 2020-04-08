@@ -1,0 +1,9 @@
+.DS_Store
+TODO.swift
+Doxyfile
+bin/*
+lib/*
+include/*
+build/*
+*.xcodeproj
+generate_uml.py
