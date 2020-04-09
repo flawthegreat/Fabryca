@@ -1,5 +1,4 @@
-#ifndef GameObject_h
-#define GameObject_h
+#pragma once
 
 #include "Foundation.h"
 
@@ -17,6 +16,3 @@ private:
 
     static UInt _freeID;
 };
-
-
-#endif /* GameObject_h */

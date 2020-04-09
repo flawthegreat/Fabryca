@@ -13,7 +13,7 @@
 Enemy::Enemy(
     const std::string& name,
     Int maxHealth,
-    NumericAttribute attackDamage,
+    const NumericAttribute& attackDamage,
     Type type
 ):
     Character(name, maxHealth),
@@ -44,7 +44,7 @@ Void Enemy::decreaseHealthBy(Int amount) {
     _attackDamage.setPercentage(_health.percentage());
 }
 
-Void Enemy::moveTo(Point location) {
+Void Enemy::moveTo(const Point& location) {
     // TODO: когда будет игровой мир
 }
 

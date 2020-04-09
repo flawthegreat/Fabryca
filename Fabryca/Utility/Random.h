@@ -1,5 +1,4 @@
-#ifndef Random_h
-#define Random_h
+#pragma once
 
 #include "Foundation.h"
 
@@ -13,6 +12,3 @@ Int value();
 Int valueInRange(Int leftBound, Int rightBound);
 
 }
-
-
-#endif /* Random_h */

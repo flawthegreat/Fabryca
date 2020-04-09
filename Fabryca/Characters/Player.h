@@ -1,5 +1,4 @@
-#ifndef Player_h
-#define Player_h
+#pragma once
 
 #include "Foundation.h"
 #include "Characters/Character.h"
@@ -25,7 +24,7 @@ public:
 
     Void attackCharacter(Character& character);
 
-    Void moveTo(Point location) override;
+    Void moveTo(const Point& location) override;
 
 private:
     NumericAttribute _money;
@@ -34,6 +33,3 @@ private:
 
     static Player* create(const std::string& name);
 };
-
-
-#endif /* Player_h */

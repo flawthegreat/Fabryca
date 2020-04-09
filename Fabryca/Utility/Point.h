@@ -1,5 +1,4 @@
-#ifndef Point_h
-#define Point_h
+#pragma once
 
 #include "Foundation.h"
 
@@ -14,6 +13,3 @@ public:
 
     static Int distanceBetween(const Point& a, const Point& b);
 };
-
-
-#endif /* Point_h */

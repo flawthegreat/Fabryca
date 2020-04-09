@@ -1,5 +1,4 @@
-#ifndef EnemyConstants_h
-#define EnemyConstants_h
+#pragma once
 
 #include "Foundation.h"
 #include "Utility/NumericAttribute.h"
@@ -82,6 +81,3 @@ std::vector<std::vector<std::vector<NumericAttribute>>> parameters = {
         { { 62, 90 }, { 30, 42 } }       // superior
     }
 };
-
-
-#endif /* EnemyConstants_h */

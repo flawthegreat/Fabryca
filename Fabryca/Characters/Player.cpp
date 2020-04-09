@@ -58,7 +58,7 @@ Void Player::attackCharacter(Character& character) {
     character.decreaseHealthBy(damage);
 }
 
-Void Player::moveTo(Point location) {
+Void Player::moveTo(const Point& location) {
     // TODO: когда будет игровой мир
 }
 

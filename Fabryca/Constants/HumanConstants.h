@@ -1,5 +1,4 @@
-#ifndef HumanConstants_h
-#define HumanConstants_h
+#pragma once
 
 #include "Foundation.h"
 
@@ -30,6 +29,3 @@ const std::vector<std::string> possibleNames = {
     "William",
     "Francis"
 };
-
-
-#endif /* HumanConstants_h */

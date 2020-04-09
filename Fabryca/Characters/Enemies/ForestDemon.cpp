@@ -4,7 +4,7 @@
 ForestDemon::ForestDemon(
     const std::string& name,
     Int maxHealth,
-    NumericAttribute attackDamage
+    const NumericAttribute& attackDamage
 ):
     Enemy(name, maxHealth, attackDamage, Enemy::Type::forestDemon)
 {}

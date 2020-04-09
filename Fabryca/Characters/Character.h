@@ -1,5 +1,4 @@
-#ifndef Character_h
-#define Character_h
+#pragma once
 
 #include "Foundation.h"
 #include "GameObject.h"
@@ -15,23 +14,23 @@ public:
     Character(
         const std::string& name,
         Int maxHealth,
-        Point location = { 0, 0 },
+        const Point& location = { 0, 0 },
         Bool isPeaceful = false
     );
     virtual ~Character() {};
 
 
-    virtual std::string name() const;
+    virtual const std::string& name() const;
     virtual Int health() const;
-    virtual Point location() const;
+    virtual const Point& location() const;
     virtual Bool isPeaceful() const;
 
     virtual Void setHealth(Int value);
     virtual Void increaseHealthBy(Int amount);
     virtual Void decreaseHealthBy(Int amount);
 
-    virtual Void setLocation(Point location);
-    virtual Void moveTo(Point location) = 0;
+    virtual Void setLocation(const Point& location);
+    virtual Void moveTo(const Point& location) = 0;
 
     // TODO: spawn, despawn, die когда будет игровой мир
 
@@ -41,6 +40,3 @@ protected:
     Point _location;
     const Bool _isPeaceful;
 };
-
-
-#endif /* Character_h */

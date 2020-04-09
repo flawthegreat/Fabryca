@@ -1,5 +1,4 @@
-#ifndef NumericAttribute_h
-#define NumericAttribute_h
+#pragma once
 
 #include "Foundation.h"
 
@@ -29,6 +28,3 @@ private:
     Int _maxValue;
     Int _value;
 };
-
-
-#endif /* NumericAttribute_h */

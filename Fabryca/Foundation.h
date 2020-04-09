@@ -1,5 +1,4 @@
-#ifndef Foundation_h
-#define Foundation_h
+#pragma once
 
 #include <cassert>
 #include <cstdint>
@@ -23,6 +22,3 @@ using Char = char;
 using Byte = uint8_t;
 using Float = float;
 using Double = double;
-
-
-#endif /* Foundation_h */

@@ -1,5 +1,4 @@
-#ifndef Enemy_h
-#define Enemy_h
+#pragma once
 
 #include "Foundation.h"
 #include "Characters/Character.h"
@@ -14,7 +13,7 @@ public:
     Enemy(
         const std::string& name,
         Int maxHealth,
-        NumericAttribute attackDamage,
+        const NumericAttribute& attackDamage,
         Type type
     );
     virtual ~Enemy() {};
@@ -29,7 +28,7 @@ public:
 
     virtual Void attackCharacter(Character& character) const = 0;
 
-    Void moveTo(Point location) override;
+    Void moveTo(const Point& location) override;
 
     static Enemy* create(Type type, Strength strength);
 
@@ -53,6 +52,3 @@ enum class Enemy::Strength {
     superior = 2,
     _none = 3
 };
-
-
-#endif /* Enemy_h */

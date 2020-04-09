@@ -1,7 +1,12 @@
 #include "Character.h"
 
 
-Character::Character(const std::string& name, Int maxHealth, Point location, Bool isPeaceful):
+Character::Character(
+    const std::string& name,
+    Int maxHealth,
+    const Point& location,
+    Bool isPeaceful
+):
     _name(name),
     _health(0, maxHealth, maxHealth),
     _location(location),
@@ -10,7 +15,7 @@ Character::Character(const std::string& name, Int maxHealth, Point location, Boo
     assert(maxHealth > 0);
 }
 
-std::string Character::name() const {
+const std::string& Character::name() const {
     return _name;
 }
 
@@ -18,7 +23,7 @@ Int Character::health() const {
     return _health.value();
 }
 
-Point Character::location() const {
+const Point& Character::location() const {
     return _location;
 }
 
@@ -50,6 +55,6 @@ Void Character::decreaseHealthBy(Int amount) {
     }
 }
 
-Void Character::setLocation(Point location) {
+Void Character::setLocation(const Point& location) {
     _location = location;
 }

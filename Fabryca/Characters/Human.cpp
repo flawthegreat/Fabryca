@@ -17,7 +17,7 @@ Human::Human(const std::string& name):
 //     }
 // }
 
-Void Human::moveTo(Point location) {
+Void Human::moveTo(const Point& location) {
     // TODO: когда будет игровой мир
 }
 

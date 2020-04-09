@@ -1,5 +1,4 @@
-#ifndef Human_h
-#define Human_h
+#pragma once
 
 #include "Foundation.h"
 #include "Characters/Character.h"
@@ -15,10 +14,7 @@ public:
 
     // TODO: игровые предметы
     // Void sellItemToPlayer(const Item& item, Player& player);
-    Void moveTo(Point location) override;
+    Void moveTo(const Point& location) override;
 
     static Human* create();
 };
-
-
-#endif /* Human_h */
