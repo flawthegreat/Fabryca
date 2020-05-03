@@ -1,0 +1,85 @@
+{
+    "player": {
+        "meshPath": "resources/meshes/plane.obj",
+        "texturePath": "resources/textures/player.bt",
+        "shaderPath": "resources/shaders/basic-point-light",
+        "maxHealth": 100,
+        "maxMoney": 1000000,
+        "maxHonor": 100,
+        "honorDrop": 40
+    },
+    "human": {
+        "maxHealth": 100,
+        "possibleNames": [
+            "Merek",
+            "Carac",
+            "Ulric",
+            "Tybalt",
+            "Borin",
+            "Sadon",
+            "Terrowin",
+            "Rowan",
+            "Forthwind",
+            "Althalos",
+            "Fendrel",
+            "Brom",
+            "Cactus",
+            "Hadrian",
+            "Crewe",
+            "Walter",
+            "Earl",
+            "Oliver",
+            "Walter",
+            "Joseph",
+            "Crab",
+            "Geoffrey",
+            "William",
+            "Francis"
+        ]
+    },
+    "terrain": {
+        "dataPath": "resources/terrain/data",
+        "wireframe": {
+            "meshPath": "resources/meshes/terrain-wireframe.obj",
+            "texturePath": "resources/textures/black.bt",
+            "shaderPath": "resources/shaders/point-light"
+        },
+        "frontWall": {
+            "meshPath": "resources/meshes/terrain-front-wall.obj",
+            "texturePath": "resources/textures/terrain-block.bt",
+            "shaderPath": "resources/shaders/point-light"
+        },
+        "block": {
+            "meshPath": "resources/meshes/terrain-block.obj",
+            "texturePath": "resources/textures/terrain-block.bt",
+            "shaderPath": "resources/shaders/point-light-bounded",
+        },
+        "viewDistance": 4,
+        "shiftDuration": 0.3,
+        "structures": {
+            "cock": {
+                "mesh": "s",
+                "texture": "terrainBlock",
+                "shader": "pointLightBounded",
+                "id": 1
+            }
+        },
+        "modelData": {
+            "meshes": {
+                "s": "resources/meshes/s.obj"
+            },
+            "textures": {
+                "terrainBlock": "resources/textures/terrain-block.bt"
+            },
+            "shaders": {
+                "basic": "resources/shaders/basic",
+
+                "basicPointLight": "resources/shaders/basic-point-light",
+                "basicPointLightBounded": "resources/shaders/basic-point-light-bounded",
+
+                "pointLight": "resources/shaders/point-light",
+                "pointLightBounded": "resources/shaders/point-light-bounded"
+            }
+        }
+    }
+}

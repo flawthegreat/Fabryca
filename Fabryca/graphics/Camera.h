@@ -1,0 +1,24 @@
+#pragma once
+
+#include "Foundation.h"
+#include "SceneObject.h"
+
+#include <glm/glm.hpp>
+
+
+class Camera: public SceneObject {
+public:
+    Camera();
+
+
+    Float fieldOfView() const;
+    const glm::vec3& focusPoint() const;
+
+    Void setFieldOfView(Float fieldOfView);
+    Void setFocusPoint(const glm::vec3& focusPoint);
+    Void setFocusPoint(Float x, Float y, Float z);
+
+private:
+    Float _fieldOfView;
+    glm::vec3 _focusPoint;
+};
