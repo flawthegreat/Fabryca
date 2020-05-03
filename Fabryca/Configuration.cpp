@@ -68,8 +68,6 @@ Void Configuration::_loadModelData() {
     }
 }
 
-#include <iostream>
-
 Void Configuration::_loadModels() {
     const JSON::Value& modelData = _settings["models"];
     for (auto itr = modelData.begin(); itr != modelData.end(); ++itr) {

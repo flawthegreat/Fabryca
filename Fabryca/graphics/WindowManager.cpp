@@ -81,7 +81,7 @@ Int WindowManager::windowHeight() const {
 }
 
 Float WindowManager::windowAspectRatio() const {
-    auto [width, height] = windowSize();
+    const auto [width, height] = windowSize();
 
     return static_cast<Float>(width) / height;
 }
@@ -95,21 +95,21 @@ Void WindowManager::setWindowSize(const Size& size) const {
 }
 
 Void WindowManager::registerWindowSizeCallback(const std::function<Void (Int, Int)>& callback) {
-    _windowSizeCallbacks.push_back(callback);
-    auto [width, height] = WindowManager::shared().windowSize();
+    _windowSizeCallbacks.emplace_back(callback);
+    const auto [width, height] = WindowManager::shared().windowSize();
     callback(width, height);
 }
 
 KeyState WindowManager::keyState(Key key) {
-    KeyState state = static_cast<KeyState>(glfwGetKey(_window, static_cast<Int>(key)));
+    const KeyState state = static_cast<KeyState>(glfwGetKey(_window, static_cast<Int>(key)));
     _previousKeyState[static_cast<Int>(key)] = state;
 
     return state;
 }
 
 Bool WindowManager::keyWasPressed(Key key) {
-    KeyState previousState = _previousKeyState[static_cast<Int>(key)];
-    KeyState currentState = keyState(key);
+    const KeyState previousState = _previousKeyState[static_cast<Int>(key)];
+    const KeyState currentState = keyState(key);
 
     return previousState == KeyState::pressed && currentState == KeyState::released;
 }

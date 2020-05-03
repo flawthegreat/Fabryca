@@ -1,15 +1,23 @@
 #pragma once
 
 #include "Foundation.h"
-#include "GameObject.h"
+#include "Object.h"
 #include "graphics/Graphics.h"
 #include "utility/Point.h"
 
 
-struct Structure final: public GameObject {
-    Model* model;
+namespace Game {
+
+struct Structure final: public Object {
+    Model model;
     Point location;
 
 
-    Structure(Model* model, const Point& location);
+    Structure(const Model& model, const Point& location);
+
+
+    Void show() const;
+    Void hide() const;
 };
+
+}

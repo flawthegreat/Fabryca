@@ -1,6 +1,7 @@
 #include "SceneObject.h"
 #include "Renderer.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -11,7 +12,9 @@ SceneObject::SceneObject():
     _scale(1.0f),
     _positionMatrix(1.0f),
     _rotationMatrix(1.0f),
-    _scaleMatrix(1.0f)
+    _scaleMatrix(1.0f),
+    _parent(nullptr),
+    _children()
 {}
 
 const glm::vec3& SceneObject::position() const {
@@ -26,39 +29,70 @@ const glm::vec3& SceneObject::scale() const {
     return _scale;
 }
 
+glm::vec3 SceneObject::localPosition() const {
+    return _parent ? _position - _parent->_position : _position;
+}
+
+glm::vec3 SceneObject::localRotation() const {
+    return _parent ? _rotation - _parent->_rotation : _rotation;
+}
+
+const SceneObject* SceneObject::parent() const {
+    return _parent;
+}
+
+const std::vector<SceneObject*>& SceneObject::children() const {
+    return _children;
+}
+
+Void SceneObject::addChild(SceneObject* object) {
+    if (object->_parent) {
+        throw std::runtime_error("Object already has a parent.");
+    }
+
+    _children.emplace_back(object);
+    object->_parent = this;
+}
+
+Void SceneObject::removeChild(SceneObject* object) {
+    for (auto itr = _children.begin(); itr != _children.end(); ++itr) {
+        if (*itr != object) continue;
+
+        object->_parent = nullptr;
+        _children.erase(itr);
+
+        return;
+    }
+}
+
 Void SceneObject::setPosition(const glm::vec3& position) {
+    for (SceneObject* child: _children) {
+        child->setPosition(child->localPosition() + position);
+    }
+
     _position = position;
 
     _updatePositionMatrix();
 }
 
 Void SceneObject::setPosition(Float x, Float y, Float z) {
-    setPosition({ x, y, z});
+    setPosition({ x, y, z });
 }
 
 Void SceneObject::setXPosition(Float position) {
-    _position.x = position;
-
-    _updatePositionMatrix();
+    setPosition({ position, _position.y, _position.z });
 }
 
 Void SceneObject::setYPosition(Float position) {
-    _position.y = position;
-
-    _updatePositionMatrix();
+    setPosition({ _position.x, position, _position.z });
 }
 
 Void SceneObject::setZPosition(Float position) {
-    _position.z = position;
-
-    _updatePositionMatrix();
+    setPosition({ _position.x, _position.y, position });
 }
 
 Void SceneObject::setXYPosition(const glm::vec2& position) {
-    _position.x = position.x;
-    _position.y = position.y;
-
-    _updatePositionMatrix();
+    setPosition({ position.x, position.y, _position.z });
 }
 
 Void SceneObject::setXYPosition(Float x, Float y) {
@@ -66,10 +100,7 @@ Void SceneObject::setXYPosition(Float x, Float y) {
 }
 
 Void SceneObject::setXZPosition(const glm::vec2& position) {
-    _position.x = position.x;
-    _position.z = position.y;
-
-    _updatePositionMatrix();
+    setPosition({ position.x, _position.y, position.y });
 }
 
 Void SceneObject::setXZPosition(Float x, Float z) {
@@ -77,10 +108,7 @@ Void SceneObject::setXZPosition(Float x, Float z) {
 }
 
 Void SceneObject::setYZPosition(const glm::vec2& position) {
-    _position.y = position.x;
-    _position.z = position.y;
-
-    _updatePositionMatrix();
+    setPosition({ _position.x, position.x, position.y });
 }
 
 Void SceneObject::setYZPosition(Float y, Float z) {
@@ -88,6 +116,10 @@ Void SceneObject::setYZPosition(Float y, Float z) {
 }
 
 Void SceneObject::setRotation(const glm::vec3& rotation) {
+    for (SceneObject* child: _children) {
+        child->setRotation(child->localRotation() + rotation);
+    }
+
     _rotation = rotation;
 
     _updateRotationMatrix();
@@ -98,21 +130,15 @@ Void SceneObject::setRotation(Float x, Float y, Float z) {
 }
 
 Void SceneObject::setXRotation(Float rotation) {
-    _rotation.x = rotation;
-
-    _updateRotationMatrix();
+    setRotation({ rotation, _rotation.y, _rotation.z });
 }
 
 Void SceneObject::setYRotation(Float rotation) {
-    _rotation.y = rotation;
-
-    _updateRotationMatrix();
+    setRotation({ _rotation.x, rotation, _rotation.z });
 }
 
 Void SceneObject::setZRotation(Float rotation) {
-    _rotation.z = rotation;
-
-    _updateRotationMatrix();
+    setRotation({ _rotation.x, _rotation.y, rotation });
 }
 
 Void SceneObject::setScale(const glm::vec3& scale) {
@@ -130,179 +156,207 @@ Void SceneObject::setScale(Float scale) {
 }
 
 Void SceneObject::setXScale(Float scale) {
-    _scale.x = scale;
-
-    _updateScaleMatrix();
+    setScale({ scale, _scale.y, _scale.z });
 }
 
 Void SceneObject::setYScale(Float scale) {
-    _scale.y = scale;
-
-    _updateScaleMatrix();
+    setScale({ _scale.x, scale, _scale.z });
 }
 
 Void SceneObject::setZScale(Float scale) {
-    _scale.z = scale;
-
-    _updateScaleMatrix();
+    setScale({ _scale.x, _scale.y, scale });
 }
 
-Void SceneObject::moveTo(const glm::vec3& position, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
+Void SceneObject::moveTo(
+    const glm::vec3& position,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    Renderer::shared().addAnimationToQueue(
         Animation::Type::move,
-        this,
+        *this,
         position,
-        duration
-    });
+        duration,
+        callback
+    );
 }
 
-Void SceneObject::moveTo(Float x, Float y, Float z, Double duration) {
-    moveTo({ x, y, z }, duration);
+Void SceneObject::moveTo(
+    Float x,
+    Float y,
+    Float z,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveTo({ x, y, z }, duration, callback);
 }
 
-Void SceneObject::moveToX(Float x, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(x, _position.y, _position.z),
-        duration
-    });
+Void SceneObject::moveToX(
+    Float x,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveTo({ x, _position.y, _position.z }, duration, callback);
 }
 
-Void SceneObject::moveToY(Float y, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(_position.x, y, _position.z),
-        duration
-    });
+Void SceneObject::moveToY(
+    Float y,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveTo({ _position.x, y, _position.z }, duration, callback);
 }
 
-Void SceneObject::moveToZ(Float z, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(_position.x, _position.y, z),
-        duration
-    });
+Void SceneObject::moveToZ(
+    Float z,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveTo({ _position.x, _position.y, z }, duration, callback);
 }
 
-Void SceneObject::moveToXY(const glm::vec2& xy, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(xy.x, xy.y, _position.z),
-        duration
-    });
+Void SceneObject::moveToXY(
+    const glm::vec2& xy,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveTo({ xy.x, xy.y, _position.z }, duration, callback);
 }
 
-Void SceneObject::moveToXY(Float x, Float y, Double duration) {
-    moveToXY({ x, y }, duration);
+Void SceneObject::moveToXY(
+    Float x,
+    Float y,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveToXY({ x, y }, duration, callback);
 }
 
-Void SceneObject::moveToXZ(const glm::vec2& xz, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(xz.x, _position.y, xz.y),
-        duration
-    });
+Void SceneObject::moveToXZ(
+    const glm::vec2& xz,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveTo({ xz.x, _position.y, xz.y }, duration, callback);
 }
 
-Void SceneObject::moveToXZ(Float x, Float z, Double duration) {
-    moveToXZ({ x, z }, duration);
+Void SceneObject::moveToXZ(
+    Float x,
+    Float z,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveToXZ({ x, z }, duration, callback);
 }
 
-Void SceneObject::moveToYZ(const glm::vec2& yz, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(_position.x, yz.x, yz.y),
-        duration
-    });
+Void SceneObject::moveToYZ(
+    const glm::vec2& yz,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveTo({ _position.x, yz.x, yz.y }, duration, callback);
 }
 
-Void SceneObject::moveToYZ(Float y, Float z, Double duration) {
-    moveToYZ({ y, z }, duration);
+Void SceneObject::moveToYZ(
+    Float y,
+    Float z,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveToYZ({ y, z }, duration, callback);
 }
 
-Void SceneObject::moveBy(const glm::vec3& vector, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        _position + vector,
-        duration
-    });
+Void SceneObject::moveBy(
+    const glm::vec3& vector,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveTo(_position + vector, duration, callback);
 }
 
-Void SceneObject::moveBy(Float x, Float y, Float z, Double duration) {
-    moveBy({ x, y, z }, duration);
+Void SceneObject::moveBy(
+    Float x,
+    Float y,
+    Float z,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveBy({ x, y, z }, duration, callback);
 }
 
-Void SceneObject::moveByX(Float x, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(_position.x + x, _position.y, _position.z),
-        duration
-    });
+Void SceneObject::moveByX(
+    Float x,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveBy({ x, 0.0f, 0.0f }, duration, callback);
 }
 
-Void SceneObject::moveByY(Float y, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(_position.x, _position.y + y, _position.z),
-        duration
-    });
+Void SceneObject::moveByY(
+    Float y,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveBy({ 0.0f, y, 0.0f }, duration, callback);
 }
 
-Void SceneObject::moveByZ(Float z, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(_position.x, _position.y, _position.z + z),
-        duration
-    });
+Void SceneObject::moveByZ(
+    Float z,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveBy({ 0.0f, 0.0f, z }, duration, callback);
 }
 
-Void SceneObject::moveByXY(const glm::vec2& xy, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(_position.x + xy.x, _position.y + xy.y, _position.z),
-        duration
-    });
+Void SceneObject::moveByXY(
+    const glm::vec2& xy,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveBy({ xy.x, xy.y, 0.0f }, duration, callback);
 }
 
-Void SceneObject::moveByXY(Float x, Float y, Double duration) {
-    moveByXY({ x, y }, duration);
+Void SceneObject::moveByXY(
+    Float x,
+    Float y,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveByXY({ x, y }, duration, callback);
 }
 
-Void SceneObject::moveByXZ(const glm::vec2& xz, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(_position.x + xz.x, _position.y, _position.z + xz.y),
-        duration
-    });
+Void SceneObject::moveByXZ(
+    const glm::vec2& xz,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveBy({ xz.x, 0.0f, xz.y }, duration, callback);
 }
 
-Void SceneObject::moveByXZ(Float x, Float z, Double duration) {
-    moveByXZ({ x, z }, duration);
+Void SceneObject::moveByXZ(
+    Float x,
+    Float z,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveByXZ({ x, z }, duration, callback);
 }
 
-Void SceneObject::moveByYZ(const glm::vec2& yz, Double duration) {
-    Renderer::shared().appendAnimationToQueue({
-        Animation::Type::move,
-        this,
-        glm::vec3(_position.x, _position.y + yz.x, _position.z + yz.y),
-        duration
-    });
+Void SceneObject::moveByYZ(
+    const glm::vec2& yz,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveBy({ 0.0f, yz.x, yz.y }, duration, callback);
 }
 
-Void SceneObject::moveByYZ(Float y, Float z, Double duration) {
-    moveByYZ({ y, z }, duration);
+Void SceneObject::moveByYZ(
+    Float y,
+    Float z,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveByYZ({ y, z }, duration, callback);
 }
 
 Void SceneObject::_updatePositionMatrix() {

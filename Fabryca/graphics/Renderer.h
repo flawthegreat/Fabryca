@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Foundation.h"
-#include "VertexArray.h"
 #include "Shader.h"
 #include "Model.h"
 #include "Camera.h"
@@ -9,15 +8,12 @@
 
 #include <glm/glm.hpp>
 #include <vector>
-#include <deque>
 
 
-class Renderer {
+class Renderer final {
 public:
     static Renderer& shared();
 
-
-    const std::deque<Model*>& drawQueue() const;
     const std::vector<Animation>& animationQueue() const;
     const glm::mat4& projectionMatrix() const;
     const glm::mat4& viewMatrix() const;
@@ -27,19 +23,24 @@ public:
     Float viewDistance() const;
     const Camera& camera() const;
     glm::vec3 clearColor() const;
+    const glm::vec4& horizontalViewBounds() const;
 
     Void clear() const;
     Void draw() const;
 
-    Void draw(const Model& model) const;
-    Void drawModels() const;
-    Void appendModelToDrawQueue(Model* model);
-    Void removeModelFromDrawQueue(Model* model);
+    Void addModelToDrawQueue(const Model& model, Int priority = 1);
+    Void removeModelFromDrawQueue(const Model& model);
 
     Void processAnimations();
-    Void appendAnimationToQueue(const Animation& animation);
-    Void removeAnimationFromQueue(const Animation& animation);
-    Void removeAnimationFromQueue(Animation::Type type, const SceneObject& object);
+    Void addAnimationToQueue(
+        Animation::Type type,
+        SceneObject& object,
+        const glm::vec3& newValue,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void addAnimationToQueue(const Animation& animation);
+    Void removeAnimationFromQueue(const Animation& animation, Bool withCallback = true);
 
     Void updateProjectionMatrix();
     Void updateProjectionMatrix(Int windowWidth, Int windowHeight);
@@ -53,22 +54,36 @@ public:
 
     Void setViewDistance(Float viewDistance);
 
+    Void setHorizontalViewBounds(const glm::vec4& bounds);
+    Void setHorizontalViewBounds(Float minX, Float maxX, Float minY, Float maxY);
+
+    Void setClearColor(const glm::vec3& color);
+    Void setClearColor(Float r, Float g, Float b);
+
     Void setCameraFieldOfView(Float fieldOfView);
     Void setCameraPosition(const glm::vec3& position);
     Void setCameraPosition(Float x, Float y, Float z);
     Void setCameraFocusPoint(const glm::vec3& focusPoint);
     Void setCameraFocusPoint(Float x, Float y, Float z);
 
-    Void moveCameraTo(glm::vec3 position, Double duration);
-    Void moveCameraTo(Float x, Float y, Float z, Double duration);
-
-    Void setClearColor(const glm::vec3& color);
-    Void setClearColor(Float r, Float g, Float b);
+    Void moveCameraTo(
+        const glm::vec3& position,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveCameraTo(
+        Float x,
+        Float y,
+        Float z,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
 
 private:
     static Renderer* _shared;
 
-    std::deque<Model*> _drawQueue;
+    std::vector<const Model*> _opaqueDrawQueue;
+    std::vector<std::pair<Int, const Model*>> _transparentDrawQueue;
     std::vector<Animation> _animationQueue;
 
     glm::mat4 _projectionMatrix;
@@ -80,15 +95,18 @@ private:
     Float _viewDistance;
     Camera _camera;
 
+    glm::vec4 _horizontalViewBounds;
+
 
     Renderer();
     Renderer(const Renderer&) = delete;
+    Renderer& operator= (const Renderer&) = delete;
     Renderer(Renderer&&) = delete;
+    Renderer& operator= (Renderer&&) = delete;
     ~Renderer();
 
 
-    Renderer& operator= (const Renderer&) = delete;
-    Renderer& operator= (Renderer&&) = delete;
+    Void _drawModel(const Model& model) const;
 
     static Void _windowSizeDidChange(Int width, Int height);
 };

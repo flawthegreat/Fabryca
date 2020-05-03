@@ -1,28 +1,11 @@
-#include "Utility/Point.h"
-#include "Utility/NumericAttribute.h"
-#include "Utility/Random.h"
+#include "utility/Point.h"
+#include "utility/NumericAttribute.h"
+#include "utility/Random.h"
 
 #include <gtest/gtest.h>
 #include <cmath>
 #include <iostream>
 
-
-TEST(PointTest, Equality) {
-    for (Int x1 = -10; x1 <= 10; ++x1) {
-        for (Int y1 = -10; y1 <= 10; ++y1) {
-            for (Int x2 = -10; x2 <= 10; ++x2) {
-                for (Int y2 = -10; y2 <= 10; ++y2) {
-                     Bool equal = ((x1 == x2) && (y1 == y2));
-
-                     Point a = { x1, y1 };
-                     Point b = { x2, y2 };
-
-                     EXPECT_EQ(equal, a == b);
-                }
-            }
-        }
-    }
-}
 
 TEST(NumericAttributeTest, ValueChanges) {
     for (Int leftBound = -100; leftBound <= 100; ++leftBound) {

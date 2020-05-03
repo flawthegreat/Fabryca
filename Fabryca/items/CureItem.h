@@ -4,15 +4,19 @@
 #include "Item.h"
 
 
-class Cure: public Item {
+namespace Game {
+
+class CureItem final: public Item {
 public:
-    Cure(Int amount);
+    CureItem(const Model& model, Int healthAmount);
 
 
-    Int amount() const;
+    Int healthAmount() const;
 
     Void applyEffectToCharacter(Character& character) override;
 
 private:
-    Int _amount;
+    Int _healthAmount;
 };
+
+}

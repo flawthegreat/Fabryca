@@ -3,13 +3,16 @@
 #include "Foundation.h"
 
 #include <string>
+#include <unordered_map>
 
 
-class Texture {
+class Texture final {
 public:
     Texture(const std::string& filepath);
-    Texture(const Texture& texture) = delete;
+    Texture(const Texture& texture);
+    Texture& operator= (const Texture& texture);
     Texture(Texture&& texture);
+    Texture& operator= (Texture&& texture);
     ~Texture();
 
 
@@ -19,10 +22,12 @@ public:
     Void bind() const;
     Void unbind() const;
 
-    Texture& operator= (const Texture& texture) = delete;
-    Texture& operator= (Texture&& texture);
-
 private:
     UInt _id;
     Bool _isOpaque;
+
+    static std::unordered_map<UInt, UInt> _referenceCount;
+
+
+    Size _readIntoVector(const std::string& filepath, std::vector<Byte>& data);
 };

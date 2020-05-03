@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Foundation.h"
-#include "Item.h"
+#include "items/Item.h"
 
 #include <string>
 
+
+namespace Game {
 
 class Weapon: public Item {
 public:
@@ -22,3 +24,5 @@ private:
     Range _range;
     Int _damage;
 };
+
+}

@@ -1,9 +1,12 @@
-//
-//  Vertex.cpp
-//  Fabryca
-//
-//  Created by user on 24.04.2020.
-//  Copyright © 2020 flaw. All rights reserved.
-//
+#include "graphics/Vertex.h"
 
-#include <stdio.h>
+
+Vertex::Vertex(
+    const glm::vec3& position,
+    const glm::vec2& textureCoordinates,
+    const glm::vec3& normals
+):
+    position(position),
+    textureCoordinates(textureCoordinates),
+    normals(normals)
+{}

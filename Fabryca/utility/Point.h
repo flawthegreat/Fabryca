@@ -9,7 +9,21 @@ public:
     Int y = 0;
 
 
-    Bool operator== (const Point& point) const;
+    Point(Int x = 0, Int y = 0);
 
-    static Int distanceBetween(const Point& a, const Point& b);
+
+    Double distanceToOrigin() const;
+
+    Point& operator+= (const Point& point);
+    Point operator+ (const Point& point) const;
+    Point& operator-= (const Point& point);
+    Point operator- (const Point& point) const;
+
+    Point operator- () const;
+
+    Bool operator== (const Point& point) const;
+    Bool operator!= (const Point& point) const;
+
+    static Double distanceBetween(const Point& a, const Point& b);
+    static Int manhattanDistanceBetween(const Point& a, const Point& b);
 };

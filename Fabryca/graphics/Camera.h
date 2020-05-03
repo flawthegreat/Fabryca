@@ -3,10 +3,8 @@
 #include "Foundation.h"
 #include "SceneObject.h"
 
-#include <glm/glm.hpp>
 
-
-class Camera: public SceneObject {
+class Camera final: public SceneObject {
 public:
     Camera();
 

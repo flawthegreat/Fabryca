@@ -1,15 +1,17 @@
-#include "Cure.h"
+#include "CureItem.h"
+
+using namespace Game;
 
 
-Cure::Cure(Int amount):
-    Item(Item::Type::cure, "Cure", "Increases health by " + std::to_string(amount) + "."),
-    _amount(amount)
+CureItem::CureItem(const Model& model, Int healthAmount):
+    Item(model),
+    _healthAmount(healthAmount)
 {}
 
-Int Cure::amount() const {
-    return _amount;
+Int CureItem::healthAmount() const {
+    return _healthAmount;
 }
 
-Void Cure::applyEffectToCharacter(Character& character) {
-    character.increaseHealthBy(_amount);
+Void CureItem::applyEffectToCharacter(Character& character) {
+    character.increaseHealthBy(_healthAmount);
 }

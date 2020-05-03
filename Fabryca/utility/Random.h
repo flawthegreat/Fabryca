@@ -7,6 +7,8 @@
 
 namespace Random {
 
+const Int maxValue = Int32Max;
+
 Void reset();
 Int value();
 Int valueInRange(Int leftBound, Int rightBound);

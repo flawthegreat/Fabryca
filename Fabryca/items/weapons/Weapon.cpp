@@ -1,5 +1,7 @@
 #include "Weapon.h"
 
+using namespace Game;
+
 
 Weapon::Weapon(const Model& model, Range range, Int damage):
     Item(model),

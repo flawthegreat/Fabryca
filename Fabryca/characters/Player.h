@@ -1,34 +1,23 @@
 #pragma once
 
 #include "Foundation.h"
-#include "Characters/Character.h"
+#include "characters/Character.h"
+#include "utility/Point.h"
 
-#include <string>
 
+namespace Game {
 
 class Player final: public Character {
 public:
-    Player(const std::string& name);
+    Player(
+        Int maxHealth,
+        const Model& model,
+        Double movementSpeed = 1,
+        const Point& location = { 0, 0 }
+    );
 
 
-    static Player* create(const std::string& name);
-    
-    Int money() const;
-    Int honor() const;
-
-    Void setMoney(Int value);
-    Void increaseMoneyBy(Int amount);
-    Void decreaseMoneyBy(Int amount);
-
-    Void setHonor(Int value);
-    Void increaseHonorBy(Int amount);
-    Void decreaseHonorBy(Int amount);
-
-    Void attackCharacter(Character& character);
-
-    Void moveTo(const Point& location) override;
-
-private:
-    NumericAttribute _money;
-    NumericAttribute _honor;
+    Void attackCharacter(Character& character) const override;
 };
+
+}

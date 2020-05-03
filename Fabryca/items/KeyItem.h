@@ -4,10 +4,14 @@
 #include "Item.h"
 
 
-class Key: public Item {
+namespace Game {
+
+class KeyItem final: public Item {
 public:
-    Key();
+    KeyItem(const Model& model);
 
 
     Void applyEffectToCharacter(Character& character) override;
 };
+
+}

@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 #include <stdexcept>
+#include <algorithm>
 
 
 Renderer* Renderer::_shared = nullptr;
@@ -20,7 +21,8 @@ Renderer& Renderer::shared() {
 }
 
 Renderer::Renderer():
-    _drawQueue(),
+    _opaqueDrawQueue(),
+    _transparentDrawQueue(),
     _animationQueue(),
     _projectionMatrix(1.0f),
     _viewMatrix(1.0f),
@@ -28,24 +30,15 @@ Renderer::Renderer():
     _lightDirection(0.0f, -1.0f, 0.0f),
     _lightPower(1.0f),
     _viewDistance(100),
-    _camera()
+    _camera(),
+    _horizontalViewBounds(-1e10, 1e10, -1e10, 1e10)
 {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    glEnable(GL_CULL_FACE);
+//    glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-}
-
-Renderer::~Renderer() {
-    for (const Model* model: _drawQueue) {
-        delete model;
-    }
-}
-
-const std::deque<Model*>& Renderer::drawQueue() const {
-    return _drawQueue;
 }
 
 const std::vector<Animation>& Renderer::animationQueue() const {
@@ -87,51 +80,60 @@ glm::vec3 Renderer::clearColor() const {
     return color;
 }
 
+const glm::vec4& Renderer::horizontalViewBounds() const {
+    return _horizontalViewBounds;
+}
+
 Void Renderer::clear() const {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-Void Renderer::draw(const Model& model) const {
-    model.vertexArray().bind();
-
-    model.shader().bind();
-    glActiveTexture(GL_TEXTURE0);
-    model.texture().bind();
-
-    model.shader().setUniform1i("uTextureSampler", 0);
-    model.shader().setUniformMatrix4fv("uModelMatrix", model.modelMatrix());
-    model.shader().setUniformMatrix4fv("uViewMatrix", _viewMatrix);
-    model.shader().setUniformMatrix4fv("uProjectionMatrix", _projectionMatrix);
-    model.shader().setUniform3f("uLightPosition", _lightPosition);
-    model.shader().setUniform3f("uLightDirection", _lightDirection);
-    model.shader().setUniform1f("uLightPower", _lightPower);
-    model.shader().setUniform1f("uViewDistance", _viewDistance);
-    model.shader().setUniform3f("uWorldColor", clearColor());
-
-    glDrawArrays(GL_TRIANGLES, 0, static_cast<UInt>(model.mesh().vertexCount()));
-}
-
-Void Renderer::drawModels() const {
+Void Renderer::draw() const {
     Renderer::shared().clear();
 
-    for (const Model* model: _drawQueue) {
-        draw(*model);
+    for (const auto& model: _opaqueDrawQueue) {
+        _drawModel(*model);
+    }
+
+    for (const auto& [priority, model]: _transparentDrawQueue) {
+        _drawModel(*model);
     }
 }
 
-Void Renderer::appendModelToDrawQueue(Model* model) {
-    if (model->texture().isOpaque()) {
-        _drawQueue.push_front(model);
-    } else {
-        _drawQueue.push_back(model);
+Void Renderer::addModelToDrawQueue(const Model& model, Int priority) {
+    assert(priority >= 0);
+
+    if (model.texture.isOpaque()) {
+        _opaqueDrawQueue.emplace_back(&model);
+
+        return;
     }
+
+    priority += IntMin;
+
+    const std::pair<Int, const Model*> element = { priority, &model };
+    _transparentDrawQueue.insert(std::lower_bound(
+        _transparentDrawQueue.rbegin(),
+        _transparentDrawQueue.rend(),
+        element
+    ).base(), element);
 }
 
-Void Renderer::removeModelFromDrawQueue(Model* model) {
-    for (auto iterator = _drawQueue.begin(); iterator != _drawQueue.end(); ++iterator) {
-        if (*iterator != model) continue;
+Void Renderer::removeModelFromDrawQueue(const Model& model) {
+    if (model.texture.isOpaque()) {
+        for (auto itr = _opaqueDrawQueue.begin(); itr != _opaqueDrawQueue.end(); ++itr) {
+            if (*itr != &model) continue;
 
-        _drawQueue.erase(iterator);
+            _opaqueDrawQueue.erase(itr);
+
+            return;
+        }
+    }
+
+    for (auto itr = _transparentDrawQueue.begin(); itr != _transparentDrawQueue.end(); ++itr) {
+        if (itr->second != &model) continue;
+
+        _transparentDrawQueue.erase(itr);
 
         return;
     }
@@ -140,7 +142,13 @@ Void Renderer::removeModelFromDrawQueue(Model* model) {
 Void Renderer::processAnimations() {
     using namespace std::chrono;
 
-    Time currentTime = high_resolution_clock::now();
+    const Time currentTime = high_resolution_clock::now();
+
+    Double timeSincePreviousCall = 0.0;
+    Float step = 0.0;
+
+    glm::vec3 stepValue;
+
     const glm::vec3& (SceneObject::*getValue)() const = nullptr;
     Void (SceneObject::*setValue)(const glm::vec3&) = nullptr;
 
@@ -148,11 +156,12 @@ Void Renderer::processAnimations() {
         if (animation.lastStepTime == invalidTime) {
             animation.lastStepTime = currentTime;
         }
-        auto elapsedTime = duration_cast<nanoseconds>(currentTime - animation.lastStepTime).count();
+        timeSincePreviousCall = static_cast<Double>(
+            duration_cast<nanoseconds>(currentTime - animation.lastStepTime).count()
+        ) / 1'000'000'000.0;
         animation.lastStepTime = currentTime;
 
-        Double timeSincePreviousCall = static_cast<Double>(elapsedTime) / 1'000'000'000.0;
-        Float step = static_cast<Float>(timeSincePreviousCall / animation.timeLeft);
+        step = static_cast<Float>(timeSincePreviousCall / animation.timeLeft);
         animation.timeLeft -= timeSincePreviousCall;
 
         switch (animation.type) {
@@ -174,42 +183,73 @@ Void Renderer::processAnimations() {
 
         if (animation.timeLeft <= 0.0) {
             (animation.object->*setValue)(animation.newValue);
-            removeAnimationFromQueue(animation);
 
             continue;
         }
 
-        glm::vec3 valueDifference = (animation.newValue - (animation.object->*getValue)());
-        glm::vec3 currentValue = (animation.object->*getValue)() + valueDifference * step;
-        (animation.object->*setValue)(currentValue);
+        stepValue = animation.newValue + (step - 1.0f) *
+            (animation.newValue - (animation.object->*getValue)());
+        (animation.object->*setValue)(stepValue);
 
         if (dynamic_cast<Camera*>(animation.object)) {
             updateViewMatrix();
         }
     }
-}
 
-Void Renderer::appendAnimationToQueue(const Animation& animation) {
-    removeAnimationFromQueue(animation.type, *animation.object);
+    for (Int i = static_cast<Int>(_animationQueue.size()) - 1; i >= 0; --i) {
+        if (_animationQueue[i].timeLeft > 0.0) continue;
 
-    _animationQueue.push_back(animation);
-}
-
-Void Renderer::removeAnimationFromQueue(const Animation& animation) {
-    for (auto iterator = _animationQueue.begin(); iterator != _animationQueue.end(); ++iterator) {
-        if (&*iterator != &animation) continue;
-
-        _animationQueue.erase(iterator);
-
-        return;
+        if (_animationQueue[i].callback) {
+            _animationQueue[i].callback(true);
+        }
+        _animationQueue.erase(_animationQueue.begin() + i);
     }
 }
 
-Void Renderer::removeAnimationFromQueue(Animation::Type type, const SceneObject& object) {
-    for (auto iterator = _animationQueue.begin(); iterator != _animationQueue.end(); ++iterator) {
-        if (iterator->type != type || iterator->object != &object) continue;
+Void Renderer::addAnimationToQueue(
+    Animation::Type type,
+    SceneObject& object,
+    const glm::vec3& newValue,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    for (Animation& _animation: _animationQueue) {
+        if (_animation.type != type || _animation.object != &object) continue;
 
-        _animationQueue.erase(iterator);
+        if (_animation.callback) {
+            _animation.callback(false);
+        }
+        _animation = Animation(type, object, newValue, duration, callback);
+
+        return;
+    }
+
+    _animationQueue.emplace_back(type, object, newValue, duration, callback);
+}
+
+Void Renderer::addAnimationToQueue(const Animation& animation) {
+    for (Animation& _animation: _animationQueue) {
+        if (_animation.type != animation.type || _animation.object != animation.object) continue;
+
+        if (_animation.callback) {
+            _animation.callback(false);
+        }
+        _animation = animation;
+
+        return;
+    }
+
+    _animationQueue.emplace_back(animation);
+}
+
+Void Renderer::removeAnimationFromQueue(const Animation& animation, Bool withCallback) {
+    for (auto itr = _animationQueue.begin(); itr != _animationQueue.end(); ++itr) {
+        if (itr->type != animation.type || itr->object != animation.object) continue;
+
+        if (withCallback && itr->callback) {
+            itr->callback(false);
+        }
+        _animationQueue.erase(itr);
 
         return;
     }
@@ -227,7 +267,7 @@ Void Renderer::updateProjectionMatrix() {
 Void Renderer::updateProjectionMatrix(Int windowWidth, Int windowHeight) {
     _projectionMatrix = glm::perspective(
         glm::radians(_camera.fieldOfView()),
-        WindowManager::shared().windowAspectRatio(),
+        static_cast<Float>(windowWidth) / windowHeight,
         0.1f,
         100.0f
     );
@@ -237,7 +277,7 @@ Void Renderer::updateViewMatrix() {
     _viewMatrix = glm::lookAt(
         _camera.position(),
         _camera.focusPoint(),
-        glm::vec3(0, 1, 0)
+        glm::vec3(0.0f, 1.0f, 0.0f)
     );
 }
 
@@ -265,6 +305,22 @@ Void Renderer::setViewDistance(Float viewDistance) {
     _viewDistance = viewDistance;
 }
 
+Void Renderer::setHorizontalViewBounds(const glm::vec4& bounds) {
+    _horizontalViewBounds = bounds;
+}
+
+Void Renderer::setHorizontalViewBounds(Float minX, Float maxX, Float minY, Float maxY) {
+    setHorizontalViewBounds({ minX, maxX, minY, maxY });
+}
+
+Void Renderer::setClearColor(const glm::vec3& color) {
+    glClearColor(color.r, color.g, color.b, 1.0f);
+}
+
+Void Renderer::setClearColor(Float r, Float g, Float b) {
+    setClearColor({ r, g, b });
+}
+
 Void Renderer::setCameraFieldOfView(Float fieldOfView) {
     _camera.setFieldOfView(fieldOfView);
 
@@ -278,9 +334,7 @@ Void Renderer::setCameraPosition(const glm::vec3& position) {
 }
 
 Void Renderer::setCameraPosition(Float x, Float y, Float z) {
-    _camera.setPosition(x, y, z);
-
-    updateViewMatrix();
+    setCameraPosition({ x, y, z });
 }
 
 Void Renderer::setCameraFocusPoint(const glm::vec3& focusPoint) {
@@ -290,40 +344,50 @@ Void Renderer::setCameraFocusPoint(const glm::vec3& focusPoint) {
 }
 
 Void Renderer::setCameraFocusPoint(Float x, Float y, Float z) {
-    _camera.setFocusPoint(x, y, z);
-
-    updateViewMatrix();
+    setCameraFocusPoint({ x, y, z });
 }
 
-Void Renderer::moveCameraTo(glm::vec3 position, Double duration) {
-    appendAnimationToQueue({
-        Animation::Type::move,
-        &_camera,
-        position,
-        duration
-    });
+Void Renderer::moveCameraTo(
+    const glm::vec3& position,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    addAnimationToQueue(Animation::Type::move, _camera, position, duration, callback);
 }
 
-Void Renderer::moveCameraTo(Float x, Float y, Float z, Double duration) {
-    appendAnimationToQueue({
-        Animation::Type::move,
-        &_camera,
-        glm::vec3(x, y, z),
-        duration
-    });
+Void Renderer::moveCameraTo(
+    Float x,
+    Float y,
+    Float z,
+    Double duration,
+    const std::function<Void (Bool)>& callback
+) {
+    moveCameraTo({ x, y, z }, duration, callback);
 }
 
-Void Renderer::setClearColor(const glm::vec3& color) {
-    glClearColor(color.r, color.g, color.b, 1.0f);
-}
+Void Renderer::_drawModel(const Model& model) const {
+    model.mesh.vertexBuffer().bind();
+    model.shader.bind();
+    glActiveTexture(GL_TEXTURE0);
+    model.texture.bind();
 
-Void Renderer::setClearColor(Float r, Float g, Float b) {
-    glClearColor(r, g, b, 1.0f);
+    model.shader.setUniform("uTextureSampler", 0);
+    model.shader.setUniform("uModelMatrix", model.modelMatrix());
+    model.shader.setUniform("uViewMatrix", _viewMatrix);
+    model.shader.setUniform("uProjectionMatrix", _projectionMatrix);
+    model.shader.setUniform("uLightPosition", _lightPosition);
+    model.shader.setUniform("uLightDirection", _lightDirection);
+    model.shader.setUniform("uLightPower", _lightPower);
+    model.shader.setUniform("uViewDistance", _viewDistance);
+    model.shader.setUniform("uWorldColor", clearColor());
+    model.shader.setUniform("uHorizontalViewBounds", _horizontalViewBounds);
+
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<UInt>(model.mesh.vertexCount()));
 }
 
 Void Renderer::_windowSizeDidChange(Int width, Int height) {
-    _shared->updateProjectionMatrix();
+    _shared->updateProjectionMatrix(width, height);
 
     _shared->processAnimations();
-    _shared->drawModels();
+    _shared->draw();
 }

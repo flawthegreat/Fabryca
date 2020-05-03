@@ -3,6 +3,14 @@
 #include <algorithm>
 
 
+NumericAttribute::NumericAttribute(Int maxValue):
+    _minValue(0),
+    _maxValue(maxValue),
+    _value(maxValue)
+{
+    assert(_minValue <= _maxValue);
+}
+
 NumericAttribute::NumericAttribute(Int minValue, Int maxValue):
     _minValue(minValue),
     _maxValue(maxValue),
@@ -14,7 +22,7 @@ NumericAttribute::NumericAttribute(Int minValue, Int maxValue):
 NumericAttribute::NumericAttribute(Int minValue, Int maxValue, Int value):
     _minValue(minValue),
     _maxValue(maxValue),
-    _value(std::min(maxValue, std::max(minValue, value)))
+    _value(std::clamp(value, minValue, maxValue))
 {
     assert(minValue <= maxValue);
 }
@@ -40,7 +48,7 @@ Double NumericAttribute::percentage() const {
 }
 
 Void NumericAttribute::setValue(Int value) {
-    _value = std::min(_maxValue, std::max(_minValue, value));
+    _value = std::clamp(value, _minValue, _maxValue);
 }
 
 Void NumericAttribute::setPercentage(Double percentage) {

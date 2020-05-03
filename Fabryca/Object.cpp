@@ -2,17 +2,19 @@
 
 #include <stdexcept>
 
+using namespace Game;
 
-UInt GameObject::_freeID = 1;
 
-GameObject::GameObject():
+UInt Object::_freeID = 1;
+
+Object::Object():
     _id(_freeID++)
 {
     if (_freeID == 0) {
-        throw std::runtime_error("No GameObject IDs left.");
+        throw std::runtime_error("No Object IDs left.");
     }
 }
 
-UInt GameObject::id() const {
+UInt Object::id() const {
     return _id;
 }

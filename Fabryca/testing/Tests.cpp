@@ -1,14 +1,20 @@
 #include "Foundation.h"
+#include "graphics/WindowManager.h"
 
 #include <gtest/gtest.h>
 #include <iostream>
 
 
 Int main(int argc, char **argv) {
+    if (argc > 1) {
+        resourcesPath = argv[1];
+    }
+
     ::testing::InitGoogleTest(&argc, argv);
-    Int gtestReturnCode = RUN_ALL_TESTS();
 
-    std::cout << "GTest return code: " << gtestReturnCode << std::endl;
+    WindowManager::shared().initWindow({ 640, 480 }, "Fabryca");
 
-    return 0;
+    std::cout << resourcesPath << std::endl;
+
+    return RUN_ALL_TESTS();
 }

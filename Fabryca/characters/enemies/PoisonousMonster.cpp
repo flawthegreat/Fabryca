@@ -1,32 +1,24 @@
 #include "PoisonousMonster.h"
 
+using namespace Game;
+
 
 PoisonousMonster::PoisonousMonster(
-    const std::string& name,
     Int maxHealth,
-    const NumericAttribute& attackDamage
+    const Model& model,
+    Double movementSpeed,
+    const Point& location,
+    Int attackDamage
 ):
-    Enemy(name, maxHealth, attackDamage, Enemy::Type::poisonousMonster)
+    Enemy(maxHealth, model, movementSpeed, location, attackDamage)
 {}
 
 Void PoisonousMonster::attackCharacter(Character& character) const {
     Int damage = 0;
 
-    if (Point::distanceBetween(_location, character.location()) <= 1) {
-        damage = _attackDamage.value();
+    if (Point::manhattanDistanceBetween(_location, character.location()) <= 1) {
+        damage = _attackDamage;
     }
 
     character.decreaseHealthBy(damage);
-}
-
-Void PoisonousMonster::setLocation(const Point& location) {
-//    _clearPoison();
-    _location = location;
-//    _poisonLand();
-}
-
-Void PoisonousMonster::moveTo(const Point& location) {
-//    _clearPoison();
-    _location = location;
-//    _poisonLand();
 }

@@ -4,12 +4,25 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cstring>
 #include <glm/glm.hpp>
 #include <stdexcept>
 
 
-Mesh::Mesh(const std::string& filepath): _vertexArray() {
-    FILE* file = fopen(filepath.c_str(), "r");
+Mesh::Mesh(const std::string& filepath) {
+    _read(filepath);
+}
+
+UInt Mesh::vertexCount() const {
+    return _vertexBuffer.dataSize() / sizeof(Vertex);
+}
+
+const VertexBuffer& Mesh::vertexBuffer() const {
+    return _vertexBuffer;
+}
+
+Void Mesh::_read(const std::string& filepath) {
+    FILE* file = fopen((resourcesPath + filepath).c_str(), "r");
 	if (!file) {
         std::cerr << "Failed to open \"" << filepath << "\"." << std::endl;
         throw std::runtime_error("Cannot read mesh data.");
@@ -26,29 +39,23 @@ Mesh::Mesh(const std::string& filepath): _vertexArray() {
     glm::vec3 normal;
     UInt vertexIndex[3], uvIndex[3], normalIndex[3];
 
+    const auto abort = [&]() {
+        std::cerr << "Failed to read \"" << filepath << "\"." << std::endl;
+        throw std::runtime_error("Unexpected file format. Cannot read mesh data.");
+    };
+
     Char lineHeader[128];
+    Char stupidBuffer[128];
     while (fscanf(file, "%s", lineHeader) != EOF) {
 		if (strcmp(lineHeader, "v") == 0) {
-			if (fscanf(file, "%f %f %f\n", &position.x, &position.y, &position.z) != 3) {
-                std::cerr << "Failed to read \"" << filepath << "\"." << std::endl;
-                throw std::runtime_error("Unexpected file format.");
-            }
-
-			positions.push_back(position);
+			if (fscanf(file, "%f %f %f\n", &position.x, &position.y, &position.z) != 3) abort();
+			positions.emplace_back(position);
 		} else if (strcmp(lineHeader, "vt") == 0) {
-			if (fscanf(file, "%f %f\n", &uv.x, &uv.y) != 2) {
-                std::cerr << "Failed to read \"" << filepath << "\"." << std::endl;
-                throw std::runtime_error("Unexpected file format.");
-            }
-
-			textureCoordinates.push_back(uv);
+			if (fscanf(file, "%f %f\n", &uv.x, &uv.y) != 2) abort();
+			textureCoordinates.emplace_back(uv);
 		} else if (strcmp(lineHeader, "vn") == 0) {
-			if (fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z) != 3) {
-                std::cerr << "Failed to read \"" << filepath << "\"." << std::endl;
-                throw std::runtime_error("Unexpected file format.");
-            }
-
-			normals.push_back(normal);
+			if (fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z) != 3) abort();
+			normals.emplace_back(normal);
         } else if (strcmp(lineHeader, "f") == 0) {
 			if (fscanf(
                 file,
@@ -63,52 +70,35 @@ Mesh::Mesh(const std::string& filepath): _vertexArray() {
                 &uvIndex[2],
                 &normalIndex[2]
             ) != 9) {
-                std::cerr << "Failed to read \"" << filepath << "\"." << std::endl;
-                throw std::runtime_error("Unexpected file format.");
+                abort();
 			}
 
-            vertices.push_back({
+            vertices.emplace_back(
                 positions[vertexIndex[0] - 1],
                 textureCoordinates[uvIndex[0] - 1],
                 normals[normalIndex[0] - 1]
-            });
-            vertices.push_back({
+            );
+            vertices.emplace_back(
                 positions[vertexIndex[1] - 1],
                 textureCoordinates[uvIndex[1] - 1],
                 normals[normalIndex[1] - 1]
-            });
-            vertices.push_back({
+            );
+            vertices.emplace_back(
                 positions[vertexIndex[2] - 1],
                 textureCoordinates[uvIndex[2] - 1],
                 normals[normalIndex[2] - 1]
-            });
+            );
 		} else {
-			Char stupidBuffer[128];
 			fgets(stupidBuffer, 128, file);
 		}
 	}
 
     fclose(file);
 
-    _vertexCount = static_cast<UInt>(vertices.size());
-
-    _vertexArray.bind();
     _vertexBuffer = VertexBuffer(&vertices[0], static_cast<UInt>(vertices.size() * sizeof(Vertex)));
 
     VertexBuffer::Layout layout;
     layout.appendAttribute<Vertex>(1);
 
-    _vertexArray.applyLayoutToBuffer(layout, _vertexBuffer);
-}
-
-UInt Mesh::vertexCount() const {
-    return _vertexCount;
-}
-
-const VertexArray& Mesh::vertexArray() const {
-    return _vertexArray;
-}
-
-const VertexBuffer& Mesh::vertexBuffer() const {
-    return _vertexBuffer;
+    _vertexBuffer.applyLayout(layout);
 }

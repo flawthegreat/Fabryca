@@ -5,6 +5,7 @@
 
 class NumericAttribute {
 public:
+    NumericAttribute(Int maxValue);
     NumericAttribute(Int minValue, Int maxValue);
     NumericAttribute(Int minValue, Int maxValue, Int value);
 

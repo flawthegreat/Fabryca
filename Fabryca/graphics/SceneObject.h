@@ -2,6 +2,7 @@
 
 #include "Foundation.h"
 
+#include <functional>
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -15,6 +16,13 @@ public:
     const glm::vec3& position() const;
     const glm::vec3& rotation() const;
     const glm::vec3& scale() const;
+    glm::vec3 localPosition() const;
+    glm::vec3 localRotation() const;
+    const SceneObject* parent() const;
+    const std::vector<SceneObject*>& children() const;
+
+    Void addChild(SceneObject* object);
+    Void removeChild(SceneObject* object);
 
     Void setPosition(const glm::vec3& position);
     Void setPosition(Float x, Float y, Float z);
@@ -41,29 +49,127 @@ public:
     Void setYScale(Float scale);
     Void setZScale(Float scale);
 
-    Void moveTo(const glm::vec3& position, Double duration);
-    Void moveTo(Float x, Float y, Float z, Double duration);
-    Void moveToX(Float x, Double duration);
-    Void moveToY(Float y, Double duration);
-    Void moveToZ(Float z, Double duration);
-    Void moveToXY(const glm::vec2& xy, Double duration);
-    Void moveToXY(Float x, Float y, Double duration);
-    Void moveToXZ(const glm::vec2& xz, Double duration);
-    Void moveToXZ(Float x, Float z, Double duration);
-    Void moveToYZ(const glm::vec2& yz, Double duration);
-    Void moveToYZ(Float y, Float z, Double duration);
+    Void moveTo(
+        const glm::vec3& position,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveTo(
+        Float x,
+        Float y,
+        Float z,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveToX(
+        Float x,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveToY(
+        Float y,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveToZ(
+        Float z,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveToXY(
+        const glm::vec2& xy,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveToXY(
+        Float x,
+        Float y,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveToXZ(
+        const glm::vec2& xz,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveToXZ(
+        Float x,
+        Float z,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveToYZ(
+        const glm::vec2& yz,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveToYZ(
+        Float y,
+        Float z,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
 
-    Void moveBy(const glm::vec3& vector, Double duration);
-    Void moveBy(Float x, Float y, Float z, Double duration);
-    Void moveByX(Float x, Double duration);
-    Void moveByY(Float y, Double duration);
-    Void moveByZ(Float z, Double duration);
-    Void moveByXY(const glm::vec2& xy, Double duration);
-    Void moveByXY(Float x, Float y, Double duration);
-    Void moveByXZ(const glm::vec2& xz, Double duration);
-    Void moveByXZ(Float x, Float z, Double duration);
-    Void moveByYZ(const glm::vec2& yz, Double duration);
-    Void moveByYZ(Float y, Float z, Double duration);
+    Void moveBy(
+        const glm::vec3& vector,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveBy(
+        Float x,
+        Float y,
+        Float z,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveByX(
+        Float x,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveByY(
+        Float y,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveByZ(
+        Float z,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveByXY(
+        const glm::vec2& xy,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveByXY(
+        Float x,
+        Float y,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveByXZ(
+        const glm::vec2& xz,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveByXZ(
+        Float x,
+        Float z,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveByYZ(
+        const glm::vec2& yz,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
+    Void moveByYZ(
+        Float y,
+        Float z,
+        Double duration,
+        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+    );
 
 protected:
     glm::vec3 _position;
@@ -73,6 +179,9 @@ protected:
     glm::mat4 _positionMatrix;
     glm::mat4 _rotationMatrix;
     glm::mat4 _scaleMatrix;
+
+    SceneObject* _parent;
+    std::vector<SceneObject*> _children;
 
 
     Void _updatePositionMatrix();

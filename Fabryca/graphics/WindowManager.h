@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Foundation.h"
+#include "graphics/glad.h"
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 using Window = GLFWwindow;
@@ -15,7 +14,7 @@ enum class Key;
 enum class KeyState;
 
 
-class WindowManager {
+class WindowManager final {
 public:
     static WindowManager& shared();
 
@@ -50,12 +49,11 @@ private:
 
     WindowManager();
     WindowManager(const WindowManager&) = delete;
+    WindowManager& operator= (const WindowManager&) = delete;
     WindowManager(WindowManager&&) = delete;
+    WindowManager& operator= (WindowManager&&) = delete;
     ~WindowManager();
 
-
-    WindowManager& operator= (const WindowManager&) = delete;
-    WindowManager& operator= (WindowManager&&) = delete;
 
     static Void _windowSizeDidChange(Window* window, Int width, Int height);
 };

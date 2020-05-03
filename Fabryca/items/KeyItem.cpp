@@ -1,8 +1,10 @@
-#include "Key.h"
+#include "KeyItem.h"
+
+using namespace Game;
 
 
-Key::Key():
-    Item(Item::Type::key, "Key", "Can be used to open something.")
+KeyItem::KeyItem(const Model& model):
+    Item(model)
 {}
 
-Void Key::applyEffectToCharacter(Character& character) {}
+Void KeyItem::applyEffectToCharacter(Character& character) {}

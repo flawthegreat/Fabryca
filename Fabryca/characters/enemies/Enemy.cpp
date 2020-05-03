@@ -1,82 +1,79 @@
 #include "Enemy.h"
-#include "Constants/EnemyConstants.h"
-#include "Utility/Random.h"
+#include "utility/Random.h"
 
-#include "Characters/Enemies/ForestDemon.h"
-#include "Characters/Enemies/HoveringBeast.h"
-#include "Characters/Enemies/PoisonousMonster.h"
+#include "characters/enemies/ForestDemon.h"
+#include "characters/enemies/HoveringBeast.h"
+#include "characters/enemies/PoisonousMonster.h"
 
 #include <iostream>
 #include <string>
 #include <stdexcept>
 
+using namespace Game;
+
 
 Enemy::Enemy(
-    const std::string& name,
     Int maxHealth,
-    const NumericAttribute& attackDamage,
-    Type type
+    const Model& model,
+    Double movementSpeed,
+    const Point& location,
+    Int attackDamage
 ):
-    Character(name, maxHealth),
-    _type(type),
+    Character(maxHealth, model, movementSpeed, location),
     _attackDamage(attackDamage)
 {}
 
-Enemy::Type Enemy::type() const {
-    return _type;
-}
-
-Int Enemy::attackDamage() const {
-    return _attackDamage.value();
-}
-
-Void Enemy::setHealth(Int value) {
-    _health.setValue(value);
-    _attackDamage.setPercentage(_health.percentage());
-}
-
-Void Enemy::increaseHealthBy(Int amount) {
-    _health.increaseBy(amount);
-    _attackDamage.setPercentage(_health.percentage());
-}
-
-Void Enemy::decreaseHealthBy(Int amount) {
-    _health.decreaseBy(amount);
-    _attackDamage.setPercentage(_health.percentage());
-}
-
-Void Enemy::moveTo(const Point& location) {
-    // TODO: когда будет игровой мир
-}
-
-Enemy* Enemy::create(Enemy::Type type, Enemy::Strength strength) {
-    std::string name = possibleNames[Random::value() % possibleNames.size()];
-
-    // TODO: наполнять случайными предметами
-
+Enemy* Enemy::create(
+    const Configuration& Configuration,
+    Type type,
+    Strength strength,
+    const Point& location
+) {
     Int _type = static_cast<Int>(type);
     Int _strength = static_cast<Int>(strength);
 
-    Int maxHealth = Random::valueInRange(
-        parameters[_type][_strength][0].minValue(),
-        parameters[_type][_strength][0].maxValue()
+    Int attackDamage = Random::valueInRange(
+        Configuration.settings()["enemies"][_type]["stats"][_strength]["minAttackDamage"].asInt(),
+        Configuration.settings()["enemies"][_type]["stats"][_strength]["maxAttackDamage"].asInt()
     );
-    Int maxDamage = Random::valueInRange(
-        parameters[_type][_strength][1].minValue(),
-        parameters[_type][_strength][1].maxValue()
+    Int maxHealth = Random::valueInRange(
+        Configuration.settings()["enemies"][_type]["stats"][_strength]["minMaxHealth"].asInt(),
+        Configuration.settings()["enemies"][_type]["stats"][_strength]["maxMaxHealth"].asInt()
+    );
+    Double movementSpeed = Configuration.settings()["enemies"][_type]["movementSpeed"].asDouble();
+    const Model& model = *Configuration.models().at(
+        Configuration.settings()["enemies"][_type]["model"].asString()
     );
 
-    NumericAttribute damage = NumericAttribute(maxDamage / 2 + maxDamage % 1, maxDamage, maxDamage);
 
     switch (type) {
     case Type::forestDemon:
-        return new ForestDemon(name, maxHealth, damage);
+        return new ForestDemon(
+            maxHealth,
+            model,
+            movementSpeed,
+            location,
+            attackDamage
+        );
     case Type::hoveringBeast:
-        return new HoveringBeast(name, maxHealth, damage);
+        return new HoveringBeast(
+            maxHealth,
+            model,
+            movementSpeed,
+            location,
+            attackDamage
+        );
     case Type::poisonousMonster:
-        return new PoisonousMonster(name, maxHealth, damage);
+        return new PoisonousMonster(
+            maxHealth,
+            model,
+            movementSpeed,
+            location,
+            attackDamage
+        );
     default:
         throw std::runtime_error("Unknown enemy type.");
     }
-}
 
+    return nullptr;
+}

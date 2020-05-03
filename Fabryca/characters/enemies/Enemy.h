@@ -1,8 +1,12 @@
 #pragma once
 
 #include "Foundation.h"
-#include "Characters/Character.h"
+#include "characters/Character.h"
+#include "utility/Point.h"
+#include "utility/JSON.h"
 
+
+namespace Game {
 
 class Enemy: public Character {
 public:
@@ -11,30 +15,23 @@ public:
 
 
     Enemy(
-        const std::string& name,
         Int maxHealth,
-        const NumericAttribute& attackDamage,
-        Type type
+        const Model& model,
+        Double movementSpeed,
+        const Point& location,
+        Int attackDamage
     );
-    virtual ~Enemy() {};
 
 
-    static Enemy* create(Type type, Strength strength);
-    
-    Type type() const;
-    Int attackDamage() const;
-
-    Void setHealth(Int value) override;
-    Void increaseHealthBy(Int amount) override;
-    Void decreaseHealthBy(Int amount) override;
-
-    virtual Void attackCharacter(Character& character) const = 0;
-
-    Void moveTo(const Point& location) override;
+    static Enemy* create(
+        const Configuration& Configuration,
+        Type type,
+        Strength strength,
+        const Point& location
+    );
 
 protected:
-    const Type _type;
-    NumericAttribute _attackDamage;
+    Int _attackDamage;
 };
 
 
@@ -42,7 +39,7 @@ enum class Enemy::Type {
     forestDemon = 0,
     hoveringBeast = 1,
     poisonousMonster = 2,
-    _none
+    none
 };
 
 
@@ -50,5 +47,7 @@ enum class Enemy::Strength {
     weak = 0,
     dangerous = 1,
     superior = 2,
-    _none
+    none
 };
+
+}

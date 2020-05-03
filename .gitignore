@@ -1,9 +1,16 @@
 .DS_Store
-TODO.swift
-Doxyfile
 bin/*
 lib/*
 include/*
+launcher/*
 build/*
 *.xcodeproj
+Doxyfile
 generate_uml.py
+TP Patterns.pdf
+
+Fabryca/resources/convert.py
+Fabryca/resources/textures/*.png
+Fabryca/resources/textures/*.pxd
+Fabryca/resources/terrain/*.png
+Fabryca/resources/terrain/*.pxd

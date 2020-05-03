@@ -4,18 +4,20 @@
 #include "Vertex.h"
 
 #include <vector>
-#include <glad/glad.h>
+#include <unordered_map>
 
 
-class VertexBuffer {
+class VertexBuffer final {
 public:
     class Layout;
 
 
     VertexBuffer();
     VertexBuffer(const Void* data, UInt dataSize);
-    VertexBuffer(const VertexBuffer&) = delete;
+    VertexBuffer(const VertexBuffer& vertexBuffer);
+    VertexBuffer& operator= (const VertexBuffer& vertexBuffer);
     VertexBuffer(VertexBuffer&& vertexBuffer);
+    VertexBuffer& operator= (VertexBuffer&& vertexBuffer);
     ~VertexBuffer();
 
 
@@ -24,12 +26,15 @@ public:
     Void bind() const;
     Void unbind() const;
 
-    VertexBuffer& operator= (const VertexBuffer&) = delete;
-    VertexBuffer& operator= (VertexBuffer&& vertexBuffer);
+    Void applyLayout(const Layout& layout);
 
 private:
     UInt _id;
     UInt _dataSize;
+    UInt _vertexArray;
+    UInt _attributeCount;
+
+    static std::unordered_map<UInt, UInt> _referenceCount;
 };
 
 
@@ -44,20 +49,8 @@ public:
     const std::vector<Attribute>& attributes() const;
     UInt stride() const;
 
-    template<typename T>
-    Void appendAttribute(UInt count, Bool normalized = GL_FALSE);
-
-    template<>
-    Void appendAttribute<Float>(UInt count, Bool normalized);
-
-    template<>
-    Void appendAttribute<UInt>(UInt count, Bool normalized);
-
-    template<>
-    Void appendAttribute<Byte>(UInt count, Bool normalized);
-
-    template<>
-    Void appendAttribute<Vertex>(UInt count, Bool normalized);
+    template<typename Type>
+    Void appendAttribute(UInt count, Bool normalized = false);
 
 private:
     std::vector<Attribute> _attributes;
@@ -70,4 +63,7 @@ struct VertexBuffer::Layout::Attribute {
     UInt typeSize;
     UInt count;
     Byte normalized;
+
+
+    Attribute(UInt type, UInt typeSize, UInt count, Bool normalized);
 };

@@ -1,13 +1,23 @@
 #pragma once
 
 #include "Foundation.h"
-#include "Characters/Enemies/Enemy.h"
+#include "characters/enemies/Enemy.h"
 
+
+namespace Game {
 
 class HoveringBeast final: public Enemy {
 public:
-    HoveringBeast(const std::string& name, Int maxHealth, const NumericAttribute& attackDamage);
+    HoveringBeast(
+        Int maxHealth,
+        const Model& model,
+        Double movementSpeed,
+        const Point& location,
+        Int attackDamage
+    );
 
     
     Void attackCharacter(Character& character) const override;
 };
+
+}
