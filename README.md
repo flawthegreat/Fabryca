@@ -15,9 +15,10 @@ make install
 ```
 
 Параметры:
-`RESOURCES_DIR [= /usr/share]` - папка с ресурсами игры
-`LAUNCHER_DIR [= ~/Desktop]` - путь до лаунчера
-`BINARY_DIR [= CMAKE_INSTALL_PREFIX]` - путь до исполняемого файла
+
+`RESOURCES_DIR [= /usr/share]` - папка с ресурсами игры  
+`LAUNCHER_DIR [= ~/Desktop]` - путь до лаунчера  
+`BINARY_DIR [= CMAKE_INSTALL_PREFIX]` - путь до исполняемого файла  
 `[TESTING = ON]` - если указан, будут собраны тесты 
 
 Протестировано на `macOS 10.15` и `Ubuntu 18.04`
