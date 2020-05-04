@@ -3,9 +3,9 @@
 
 
 Model::Model(
-    const std::string& meshFilepath,
-    const std::string& textureFilepath,
-    const std::string& shaderFilepath
+    const Filepath& meshFilepath,
+    const Filepath& textureFilepath,
+    const Filepath& shaderFilepath
 ):
     mesh(meshFilepath),
     texture(textureFilepath),

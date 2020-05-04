@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Foundation.h"
+#include "utility/Filepath.h"
 
 #include <json/json.h>
 #include <string>
@@ -11,7 +12,7 @@ namespace JSON {
 using namespace Json;
 
 
-Void read(const std::string& filepath, Value& destination);
-Value read(const std::string& filepath);
+Void read(const Filepath& filepath, Value& destination);
+Value read(const Filepath& filepath);
 
 }

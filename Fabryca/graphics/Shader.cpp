@@ -14,13 +14,13 @@ enum class Shader::Type {
 
 std::unordered_map<UInt, UInt> Shader::_referenceCount;
 
-Shader::Shader(const std::string& filepath):
+Shader::Shader(const Filepath& filepath):
     _id(glCreateProgram())
 {
     std::string vertexSource;
     std::string fragmentSource;
-    _readSourceIntoString(filepath + "/vertex.glsl", vertexSource);
-    _readSourceIntoString(filepath + "/fragment.glsl", fragmentSource);
+    _readSourceIntoString(filepath/"vertex.glsl", vertexSource);
+    _readSourceIntoString(filepath/"fragment.glsl", fragmentSource);
 
     const UInt vertexShader = _compileSource(Type::vertex, vertexSource);
     const UInt fragmentShader = _compileSource(Type::fragment, fragmentSource);
@@ -132,8 +132,8 @@ UInt Shader::_uniformLocation(const std::string& name) const {
     return location;
 }
 
-Void Shader::_readSourceIntoString(const std::string& filepath, std::string& string) {
-    FILE* file = fopen((resourcesPath + filepath).c_str(), "rb");
+Void Shader::_readSourceIntoString(const Filepath& filepath, std::string& string) {
+    FILE* file = fopen(filepath.stringValue().c_str(), "rb");
     if (!file) {
         std::cerr << "Failed to open file \"" << filepath << "\"." << std::endl;
         throw std::runtime_error("Cannot read shader source.");

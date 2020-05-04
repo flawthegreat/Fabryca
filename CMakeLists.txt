@@ -44,6 +44,7 @@ set(
     ${PROJECT_DIR}/utility/NumericAttribute.cpp 
     ${PROJECT_DIR}/utility/Random.cpp
     ${PROJECT_DIR}/utility/JSON.cpp 
+    ${PROJECT_DIR}/utility/Filepath.cpp 
 
     ${PROJECT_DIR}/graphics/WindowManager.cpp
     ${PROJECT_DIR}/graphics/Renderer.cpp
@@ -134,7 +135,7 @@ if (TESTING STREQUAL ON)
         ${PROJECT_DIR}/testing/Tests.cpp 
         ${PROJECT_DIR}/testing/UtilityTest.cpp 
         ${PROJECT_DIR}/testing/CharacterTest.cpp
-        ${PROJECT_DIR}/testing/GameInstanceTest.cpp
+        ${PROJECT_DIR}/testing/GameTest.cpp
     )
 
     execute_process(

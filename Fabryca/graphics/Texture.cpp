@@ -9,7 +9,7 @@
 
 std::unordered_map<UInt, UInt> Texture::_referenceCount;
 
-Texture::Texture(const std::string& filepath):
+Texture::Texture(const Filepath& filepath):
     _isOpaque(true)
 {
     std::vector<Byte> data;
@@ -94,8 +94,8 @@ Void Texture::unbind() const {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-Size Texture::_readIntoVector(const std::string& filepath, std::vector<Byte>& data) {
-    FILE* file = fopen((resourcesPath + filepath).c_str(), "rb");
+Size Texture::_readIntoVector(const Filepath& filepath, std::vector<Byte>& data) {
+    FILE* file = fopen(filepath.stringValue().c_str(), "rb");
     if (!file) {
         std::cerr << "Failed to open file \"" << filepath << "\"." << std::endl;
         throw std::runtime_error("Cannot read texture data.");

@@ -5,7 +5,7 @@
 using namespace Game;
 
 
-GameInstance::GameInstance(const std::string& settingsFilepath):
+GameInstance::GameInstance(const Filepath& settingsFilepath):
     _configuration(settingsFilepath),
     _terrain({ 15, 18 }, _configuration)
 {

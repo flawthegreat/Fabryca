@@ -6,8 +6,8 @@
 
 namespace JSON {
 
-Void read(const std::string& filepath, Value& destination) {
-    FILE* file = fopen((resourcesPath + filepath).c_str(), "rb");
+Void read(const Filepath& filepath, Value& destination) {
+    FILE* file = fopen(filepath.stringValue().c_str(), "rb");
     if (!file) {
         std::cerr << "Failed to open file \"" << filepath << "\"." << std::endl;
         throw std::runtime_error("Cannot read JSON data.");
@@ -28,7 +28,7 @@ Void read(const std::string& filepath, Value& destination) {
     }
 }
 
-Value read(const std::string& filepath) {
+Value read(const Filepath& filepath) {
     Value value;
     read(filepath, value);
 

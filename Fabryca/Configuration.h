@@ -2,6 +2,7 @@
 
 #include "utility/JSON.h"
 #include "graphics/Graphics.h"
+#include "utility/Filepath.h"
 
 #include <string>
 #include <unordered_map>
@@ -11,7 +12,7 @@ namespace Game {
 
 class Configuration {
 public:
-    Configuration(const std::string& settingsFilepath);
+    Configuration(const Filepath& settingsFilepath);
     ~Configuration();
 
 

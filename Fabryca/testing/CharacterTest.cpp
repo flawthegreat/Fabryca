@@ -21,11 +21,7 @@ TEST(PlayerTest, CreationAndMethods) {
 
     Player* player = new Player(
         maxHealth,
-        Model(
-            "meshes/character.obj",
-            "textures/player.bt",
-            "shaders/basic"
-        ),
+        Model("meshes/character.obj", "textures/player.bt", "shaders/basic"),
         1,
         location
     );

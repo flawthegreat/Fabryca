@@ -1,10 +1,24 @@
+#include "Object.h"
 #include "GameInstance.h"
+#include "Terrain.h"
 
 #include <gtest/gtest.h>
 #include <iostream>
 
 using namespace Game;
 
+
+TEST(ObjectTest, IDUniqueness) {
+    UInt previousID = 0;
+
+    for (Int i = 0; i < 1'000'000; ++i) {
+        const Object object;
+
+        ASSERT_NE(object.id(), previousID);
+
+        previousID = object.id();
+    }
+}
 
 TEST(GameInstanceTest, Creation) {
     GameInstance game("Settings.json");

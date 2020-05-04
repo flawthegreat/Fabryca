@@ -9,7 +9,7 @@
 #include <stdexcept>
 
 
-Mesh::Mesh(const std::string& filepath) {
+Mesh::Mesh(const Filepath& filepath) {
     _read(filepath);
 }
 
@@ -21,8 +21,8 @@ const VertexBuffer& Mesh::vertexBuffer() const {
     return _vertexBuffer;
 }
 
-Void Mesh::_read(const std::string& filepath) {
-    FILE* file = fopen((resourcesPath + filepath).c_str(), "r");
+Void Mesh::_read(const Filepath& filepath) {
+    FILE* file = fopen(filepath.stringValue().c_str(), "r");
 	if (!file) {
         std::cerr << "Failed to open \"" << filepath << "\"." << std::endl;
         throw std::runtime_error("Cannot read mesh data.");

@@ -2,13 +2,14 @@
 
 #include "Foundation.h"
 #include "VertexBuffer.h"
+#include "utility/Filepath.h"
 
 #include <string>
 
 
 class Mesh final {
 public:
-    Mesh(const std::string& filepath);
+    Mesh(const Filepath& filepath);
 
 
     UInt vertexCount() const;
@@ -18,5 +19,5 @@ private:
     VertexBuffer _vertexBuffer;
 
 
-    Void _read(const std::string& filepath);
+    Void _read(const Filepath& filepath);
 };

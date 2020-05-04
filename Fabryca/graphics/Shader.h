@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Foundation.h"
+#include "utility/Filepath.h"
 
 #include <string>
 #include <unordered_map>
@@ -9,7 +10,7 @@
 
 class Shader final {
 public:
-    Shader(const std::string& filepath);
+    Shader(const Filepath& filepath);
     Shader(const Shader& shader);
     Shader& operator= (const Shader& shader);
     Shader(Shader&& shader);
@@ -41,6 +42,6 @@ private:
 
     UInt _uniformLocation(const std::string& name) const;
 
-    static Void _readSourceIntoString(const std::string& filepath, std::string& string);
+    static Void _readSourceIntoString(const Filepath& filepath, std::string& string);
     static UInt _compileSource(Type type, const std::string& source);
 };

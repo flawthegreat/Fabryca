@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "SceneObject.h"
+#include "utility/Filepath.h"
 
 #include <vector>
 #include <glm/glm.hpp>
@@ -17,9 +18,9 @@ struct Model final: public SceneObject {
 
 
     Model(
-        const std::string& meshFilepath,
-        const std::string& textureFilepath,
-        const std::string& shaderFilepath
+        const Filepath& meshFilepath,
+        const Filepath& textureFilepath,
+        const Filepath& shaderFilepath
     );
     Model(const Mesh& mesh, const Texture& texture, const Shader& shader);
 

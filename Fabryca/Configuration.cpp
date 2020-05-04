@@ -3,7 +3,7 @@
 using namespace Game;
 
 
-Configuration::Configuration(const std::string& settingsFilepath) {
+Configuration::Configuration(const Filepath& settingsFilepath) {
     JSON::read(settingsFilepath, _settings);
     _loadModelData();
     _loadModels();

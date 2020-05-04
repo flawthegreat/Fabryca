@@ -4,6 +4,7 @@
 #include "graphics/Graphics.h"
 #include "Configuration.h"
 #include "Terrain.h"
+#include "utility/Filepath.h"
 
 #include <string>
 #include <unordered_map>
@@ -13,7 +14,7 @@ namespace Game {
 
 class GameInstance final {
 public:
-    GameInstance(const std::string& settingsFilepath);
+    GameInstance(const Filepath& settingsFilepath);
 
 
     const Configuration& configuration() const;

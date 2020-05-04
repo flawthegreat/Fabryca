@@ -1,14 +1,20 @@
 #include "Foundation.h"
 #include "utility/Random.h"
+#include "utility/Filepath.h"
 #include "GameInstance.h"
 
 #include <iostream>
 
 
+/*
+
+Соотношение сторон Ubuntu
+
+ */
+
+
 Int main(Int argc, Char** argv) {
-    if (argc > 1) {
-        resourcesPath = argv[1];
-    }
+    Filepath::setRootFilepath(argc > 1 ? argv[1] : "resources");
 
     Random::reset();
 

@@ -202,8 +202,8 @@ Void Terrain::_alignCamera(Double duration) const {
 }
 
 Void Terrain::_loadBlocks() {
-    const std::string& dataFilepath = _configuration.settings()["terrain"]["dataPath"].asString();
-    FILE* file = fopen((resourcesPath + dataFilepath).c_str(), "rb");
+    const Filepath& dataFilepath = _configuration.settings()["terrain"]["dataPath"].asString();
+    FILE* file = fopen(dataFilepath.stringValue().c_str(), "rb");
     if (!file) {
         std::cerr << "Failed to open file \"" << dataFilepath << "\"." << std::endl;
         throw std::runtime_error("Cannot read terrain data.");

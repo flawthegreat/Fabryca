@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Foundation.h"
+#include "utility/Filepath.h"
 
 #include <string>
 #include <unordered_map>
@@ -8,7 +9,7 @@
 
 class Texture final {
 public:
-    Texture(const std::string& filepath);
+    Texture(const Filepath& filepath);
     Texture(const Texture& texture);
     Texture& operator= (const Texture& texture);
     Texture(Texture&& texture);
@@ -29,5 +30,5 @@ private:
     static std::unordered_map<UInt, UInt> _referenceCount;
 
 
-    Size _readIntoVector(const std::string& filepath, std::vector<Byte>& data);
+    Size _readIntoVector(const Filepath& filepath, std::vector<Byte>& data);
 };

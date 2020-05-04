@@ -72,6 +72,3 @@ enum class Direction {
     left = 2,
     down = 3
 };
-
-
-inline std::string resourcesPath = "resources/";
