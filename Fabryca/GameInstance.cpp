@@ -153,7 +153,6 @@ Void GameInstance::_makePlayerDecisions() {
                 _player.increaseHealthBy(Random::valueInRange(1, _maxHealthBonus));
             }
         }
-        _terrain._updateEnemyExistence(_terrain._cursor.location.x, _terrain._cursor.location.y);
 
         _makeEnemyDecisions();
 

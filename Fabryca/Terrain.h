@@ -69,9 +69,7 @@ private:
 
     Void _alignCamera(Double duration = 0.0) const;
 
-    Void _updateEnemyExistence(Int x, Int y);
-    Void _updateEnemyExistence(const Point& location);
-
+    Void _enemyHasDied(Enemy* enemy);
     Void _updateEnemyLocation(Enemy* enemy);
 
     Int _locationPriority(Int y) const;

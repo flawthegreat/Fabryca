@@ -239,19 +239,9 @@ Void Terrain::_alignCamera(Double duration) const {
     );
 }
 
-Void Terrain::_updateEnemyExistence(Int x, Int y) {
-    Enemy* enemy = _enemyAt(x, y);
-    if (!enemy) return;
-
-    if (enemy->health() == 0) {
-        enemy->despawn();
-        _enemies[x][y] = nullptr;
-        _deadEnemies.emplace_back(enemy);
-    }
-}
-
-Void Terrain::_updateEnemyExistence(const Point& location) {
-    _updateEnemyExistence(location.x, location.y);
+Void Terrain::_enemyHasDied(Enemy* enemy) {
+    _enemies[enemy->location().x][enemy->location().y] = nullptr;
+    _deadEnemies.emplace_back(enemy);
 }
 
 Void Terrain::_updateEnemyLocation(Enemy* enemy) {
@@ -319,6 +309,9 @@ Void Terrain::_loadStructures() {
                 _enemyLocation[enemy] = { x, y };
                 enemy->addEventListener("move", [&](Character* enemy) {
                     _updateEnemyLocation(dynamic_cast<Enemy*>(enemy));
+                });
+                enemy->addEventListener("die", [&](Character* enemy) {
+                    _enemyHasDied(dynamic_cast<Enemy*>(enemy));
                 });
 
                 if (!randomRotation) continue;
