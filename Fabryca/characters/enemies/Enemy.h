@@ -1,0 +1,53 @@
+#pragma once
+
+#include "Foundation.h"
+#include "characters/Character.h"
+#include "utility/Point.h"
+#include "utility/JSON.h"
+
+
+namespace Game {
+
+class Enemy: public Character {
+public:
+    enum class Type;
+    enum class Strength;
+
+
+    Enemy(
+        Int maxHealth,
+        const Model& model,
+        Double movementSpeed,
+        const Point& location,
+        Int attackDamage
+    );
+
+
+    static Enemy* create(
+        const Configuration& Configuration,
+        Type type,
+        Strength strength,
+        const Point& location
+    );
+
+protected:
+    Int _attackDamage;
+};
+
+
+enum class Enemy::Type {
+    forestDemon = 0,
+    hoveringBeast = 1,
+    poisonousMonster = 2,
+    none
+};
+
+
+enum class Enemy::Strength {
+    weak = 0,
+    dangerous = 1,
+    superior = 2,
+    none
+};
+
+}

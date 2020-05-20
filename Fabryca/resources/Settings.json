@@ -1,0 +1,248 @@
+{
+    "player": {
+        "meshPath": "meshes/plane.obj",
+        "texturePath": "textures/player.bt",
+        "shaderPath": "shaders/basicPointLight",
+        "maxHealth": 100,
+        "maxMoney": 1000000,
+        "maxHonor": 100,
+        "honorDrop": 40
+    },
+    "enemies": [
+        {
+            "model": "forestDemon",
+            "movementSpeed": 1.0,
+            "stats": [
+                {
+                    "minAttackDamage": 15,
+                    "maxAttackDamage": 30,
+                    "minMaxHealth": 5,
+                    "maxMaxHealth": 10
+                },
+                {
+                    "minAttackDamage": 31,
+                    "maxAttackDamage": 72,
+                    "minMaxHealth": 12,
+                    "maxMaxHealth": 28
+                },
+                {
+                    "minAttackDamage": 80,
+                    "maxAttackDamage": 117,
+                    "minMaxHealth": 36,
+                    "maxMaxHealth": 49
+                }
+            ]
+        },
+        {
+            "model": "hoveringBeast",
+            "movementSpeed": 1,
+            "stats": [
+                {
+                    "minAttackDamage": 20,
+                    "maxAttackDamage": 36,
+                    "minMaxHealth": 4,
+                    "maxMaxHealth": 6
+                },
+                {
+                    "minAttackDamage": 37,
+                    "maxAttackDamage": 78,
+                    "minMaxHealth": 8,
+                    "maxMaxHealth": 20
+                },
+                {
+                    "minAttackDamage": 86,
+                    "maxAttackDamage": 130,
+                    "minMaxHealth": 21,
+                    "maxMaxHealth": 35
+                }
+            ]
+        },
+        {
+            "model": "poisonousMonster",
+            "movementSpeed": 1,
+            "stats": [
+                {
+                    "minAttackDamage": 10,
+                    "maxAttackDamage": 20,
+                    "minMaxHealth": 4,
+                    "maxMaxHealth":8
+                },
+                {
+                    "minAttackDamage": 24,
+                    "maxAttackDamage": 40,
+                    "minMaxHealth": 10,
+                    "maxMaxHealth": 24
+                },
+                {
+                    "minAttackDamage": 62,
+                    "maxAttackDamage": 90,
+                    "minMaxHealth": 30,
+                    "maxMaxHealth": 42
+                }
+            ]
+        }
+    ],
+    "terrain": {
+        "dataPath": "terrain/data",
+        "viewDistance": 4,
+        "shiftDuration": 0.3,
+        "maxRandomRotationAngle": 30
+    },
+    "models": {
+        "terrainWireframe": {
+            "mesh": "terrainWireframe",
+            "texture": "gray0",
+            "shader": "pointLight",
+            "id": 1
+        },
+        "terrainFrontWall": {
+            "mesh": "terrainFrontWall",
+            "texture": "gray100",
+            "shader": "pointLight",
+            "id": 2
+        },
+        "cursor": {
+            "mesh": "cursor",
+            "texture": "gray0",
+            "shader": "pointLight",
+            "id": 3
+        },
+
+        "forestDemon": {
+            "mesh": "character",
+            "texture": "forestDemon",
+            "shader": "pointLightBounded",
+            "id": 200
+        },
+        "hoveringBeast": {
+            "mesh": "character",
+            "texture": "forestDemon", // TODO
+            "shader": "pointLightBounded",
+            "id": 201
+        },
+        "poisonousMonster": {
+            "mesh": "character",
+            "texture": "forestDemon", // TODO
+            "shader": "pointLightBounded",
+            "id": 202
+        },
+
+        "spruce0": {
+            "mesh": "tree",
+            "texture": "spruce0",
+            "shader": "pointLightBounded",
+            "id": 10
+        },
+        "spruce1": {
+            "mesh": "tree",
+            "texture": "spruce1",
+            "shader": "pointLightBounded",
+            "id": 11
+        },
+        "spruce2": {
+            "mesh": "tree",
+            "texture": "spruce2",
+            "shader": "pointLightBounded",
+            "id": 12
+        },
+        "spruce3": {
+            "mesh": "tree",
+            "texture": "spruce3",
+            "shader": "pointLightBounded",
+            "id": 13
+        },
+        "spruce4": {
+            "mesh": "tree",
+            "texture": "spruce4",
+            "shader": "pointLightBounded",
+            "id": 14
+        },
+        "spruce5": {
+            "mesh": "tree",
+            "texture": "spruce5",
+            "shader": "pointLightBounded",
+            "id": 15
+        },
+
+        "house1": {
+            "mesh": "house1",
+            "texture": "gray100",
+            "shader": "pointLightBounded",
+            "id": 100
+        },
+        "house2": {
+            "mesh": "house2",
+            "texture": "gray100",
+            "shader": "pointLightBounded",
+            "id": 101
+        },
+        "house3": {
+            "mesh": "house3",
+            "texture": "gray100",
+            "shader": "pointLightBounded",
+            "id": 102
+        },
+        "house4": {
+            "mesh": "house4",
+            "texture": "gray100",
+            "shader": "pointLightBounded",
+            "id": 103
+        },
+        "house5": {
+            "mesh": "house5",
+            "texture": "gray100",
+            "shader": "pointLightBounded",
+            "id": 104
+        },
+        "house6": {
+            "mesh": "house6",
+            "texture": "gray100",
+            "shader": "pointLightBounded",
+            "id": 105
+        }
+    },
+    "modelData": {
+        "meshes": {
+            "terrainWireframe": "meshes/terrainWireframe.obj",
+            "terrainFrontWall": "meshes/terrainFrontWall.obj",
+            "cursor": "meshes/cursor.obj",
+            "terrainBlock": "meshes/terrainBlock.obj",
+
+            "character": "meshes/character.obj",
+            "tree": "meshes/tree.obj",
+
+            "house1": "meshes/house1.obj",
+            "house2": "meshes/house2.obj",
+            "house3": "meshes/house3.obj",
+            "house4": "meshes/house4.obj",
+            "house5": "meshes/house5.obj",
+            "house6": "meshes/house6.obj"
+        },
+        "textures": {
+            "gray0": "textures/gray0.bt",
+            "gray50": "textures/gray50.bt",
+            "gray100": "textures/gray100.bt",
+
+            "red": "textures/red.bt",
+            "darkRed": "textures/darkRed.bt",
+
+            "forestDemon": "textures/forestDemon.bt",
+
+            "spruce0": "textures/spruce0.bt",
+            "spruce1": "textures/spruce1.bt",
+            "spruce2": "textures/spruce2.bt",
+            "spruce3": "textures/spruce3.bt",
+            "spruce4": "textures/spruce4.bt",
+            "spruce5": "textures/spruce5.bt"
+        },
+        "shaders": {
+            "basic": "shaders/basic",
+
+            "basicPointLight": "shaders/basicPointLight",
+            "basicPointLightBounded": "shaders/basicPointLightBounded",
+
+            "pointLight": "shaders/pointLight",
+            "pointLightBounded": "shaders/pointLightBounded"
+        }
+    }
+}
