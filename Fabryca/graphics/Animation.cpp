@@ -6,7 +6,7 @@ Animation::Animation(
     SceneObject& object,
     const glm::vec3& newValue,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ):
     type(type),
     object(&object),

@@ -17,21 +17,23 @@ public:
     Enemy(
         Int maxHealth,
         const Model& model,
-        Double movementSpeed,
+        const Configuration& configuration,
         const Point& location,
         Int attackDamage
     );
 
 
     static Enemy* create(
-        const Configuration& Configuration,
+        const Configuration& gameConfiguration,
         Type type,
         Strength strength,
         const Point& location
     );
 
+    Void attackCharacter(Character& character) const override;
+
 protected:
-    Int _attackDamage;
+    const Int _attackDamage;
 };
 
 

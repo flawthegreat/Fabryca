@@ -10,9 +10,7 @@ UInt Object::_freeID = 1;
 Object::Object():
     _id(_freeID++)
 {
-    if (_freeID == 0) {
-        throw std::runtime_error("No Object IDs left.");
-    }
+    if (_freeID == 0) throw std::runtime_error("No Object IDs left.");
 }
 
 UInt Object::id() const {

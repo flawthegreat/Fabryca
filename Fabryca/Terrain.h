@@ -4,8 +4,7 @@
 #include "utility/Point.h"
 #include "utility/JSON.h"
 #include "Configuration.h"
-#include "TerrainBlock.h"
-#include "Structure.h"
+#include "characters/enemies/Enemy.h"
 
 #include <vector>
 #include <unordered_map>
@@ -14,47 +13,84 @@
 
 namespace Game {
 
+struct Cursor {
+    Model model;
+    Point location;
+
+
+    Cursor(const Model& model, const Point& location);
+};
+
+
 class Terrain final {
 public:
-    Terrain(const Point& currentLocation, const Configuration& Configuration);
+    Terrain(const Configuration& Configuration);
+
     Terrain(const Terrain&) = delete;
     Terrain& operator= (const Terrain&) = delete;
     Terrain(Terrain&&) = delete;
     Terrain& operator= (Terrain&&) = delete;
+    
     ~Terrain();
 
 
-    const Structure& cursor() const;
+    const Cursor& cursor() const;
+    Point cursorPosition() const;
 
-    Void shiftToCursor();
     Void shiftCursor(Direction direction);
+    Void shiftToCursor(const Callback& callback = Callback());
+
+    friend class GameInstance;
 
 private:
     const Configuration& _configuration;
 
-    std::vector<std::vector<TerrainBlock>> _blocks;
+    std::unordered_map<Int, std::unordered_map<Int, Bool>> _blockIsReachable;
+    std::unordered_map<Int, std::unordered_map<Int, Model*>> _structures;
+    std::unordered_map<Int, std::unordered_map<Int, Enemy*>> _enemies;
+    std::unordered_map<Enemy*, Point> _enemyLocation;
 
-    Model* _wireframe;
-    Model* _frontWall;
-    Structure* _cursor;
+    std::vector<Enemy*> _deadEnemies;
 
     Point _currentLocation;
+
+    Model _wireframe;
+    Model _model;
+    Cursor _cursor;
+
     Bool _isMoving;
 
+    Int _viewDistance;
+    Double _shiftDuration;
+    Int _movingObjects;
     UInt16 _width;
     UInt16 _height;
-
-    const Int _viewDistance;
-    const Double _shiftDuration;
-    const Int _maxRandomRotationAngle;
 
 
     Void _alignCamera(Double duration = 0.0) const;
 
-    Void _loadBlocks();
+    Void _updateEnemyExistence(Int x, Int y);
+    Void _updateEnemyExistence(const Point& location);
 
-    Bool _locationIsCorrect(const Point& location);
-    Bool _positionIsVisible(const Point& position);
+    Void _updateEnemyLocation(Enemy* enemy);
+
+    Int _locationPriority(Int y) const;
+
+    Model* _structureAt(Int x, Int y) const;
+    Model* _structureAt(const Point& location) const;
+    Enemy* _enemyAt(Int x, Int y) const;
+    Enemy* _enemyAt(const Point& location) const;
+    Model* _modelAt(Int x, Int y) const;
+    Model* _modelAt(const Point& location) const;
+
+    Void _makeEnemyDecisions();
+
+    Void _loadStructures();
+
+    Bool _locationIsCorrect(Int x, Int y) const;
+    Bool _locationIsCorrect(const Point& location) const;
+    Bool _positionIsVisible(Int x, Int y) const;
+    Bool _positionIsVisible(const Point& position) const;
 };
 
 }

@@ -13,6 +13,12 @@ namespace Game {
 class Configuration {
 public:
     Configuration(const Filepath& settingsFilepath);
+
+    Configuration(const Configuration& configuration);
+    Configuration& operator= (const Configuration& configuration);
+    Configuration(Configuration&& configuration);
+    Configuration& operator= (Configuration&& configuration);
+    
     ~Configuration();
 
 
@@ -32,6 +38,8 @@ private:
     std::unordered_map<std::string, const Model*> _models;
     std::unordered_map<UInt, std::string> _modelName;
 
+
+    Void _delete();
 
     Void _loadModelData();
     Void _loadModels();

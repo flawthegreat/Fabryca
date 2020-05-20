@@ -23,7 +23,11 @@ struct Model final: public SceneObject {
         const Filepath& shaderFilepath
     );
     Model(const Mesh& mesh, const Texture& texture, const Shader& shader);
+    ~Model();
 
 
     glm::mat4 modelMatrix() const;
+
+    Void show(Int priority = 1) const;
+    Void hide() const;
 };

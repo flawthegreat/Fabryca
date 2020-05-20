@@ -33,10 +33,6 @@ glm::vec3 SceneObject::localPosition() const {
     return _parent ? _position - _parent->_position : _position;
 }
 
-glm::vec3 SceneObject::localRotation() const {
-    return _parent ? _rotation - _parent->_rotation : _rotation;
-}
-
 const SceneObject* SceneObject::parent() const {
     return _parent;
 }
@@ -45,20 +41,19 @@ const std::vector<SceneObject*>& SceneObject::children() const {
     return _children;
 }
 
-Void SceneObject::addChild(SceneObject* object) {
-    if (object->_parent) {
-        throw std::runtime_error("Object already has a parent.");
-    }
+Void SceneObject::addChild(SceneObject& object) {
+    if (object._parent) throw std::runtime_error("Object already has a parent.");
+    if (this == &object) throw std::runtime_error("You cannot add object to its own children.");
 
-    _children.emplace_back(object);
-    object->_parent = this;
+    _children.emplace_back(&object);
+    object._parent = this;
 }
 
-Void SceneObject::removeChild(SceneObject* object) {
+Void SceneObject::removeChild(SceneObject& object) {
     for (auto itr = _children.begin(); itr != _children.end(); ++itr) {
-        if (*itr != object) continue;
+        if (*itr != &object) continue;
 
-        object->_parent = nullptr;
+        object._parent = nullptr;
         _children.erase(itr);
 
         return;
@@ -66,12 +61,8 @@ Void SceneObject::removeChild(SceneObject* object) {
 }
 
 Void SceneObject::setPosition(const glm::vec3& position) {
-    for (SceneObject* child: _children) {
-        child->setPosition(child->localPosition() + position);
-    }
-
+    for (SceneObject* child: _children) { child->setPosition(child->localPosition() + position); }
     _position = position;
-
     _updatePositionMatrix();
 }
 
@@ -116,12 +107,7 @@ Void SceneObject::setYZPosition(Float y, Float z) {
 }
 
 Void SceneObject::setRotation(const glm::vec3& rotation) {
-    for (SceneObject* child: _children) {
-        child->setRotation(child->localRotation() + rotation);
-    }
-
     _rotation = rotation;
-
     _updateRotationMatrix();
 }
 
@@ -143,7 +129,6 @@ Void SceneObject::setZRotation(Float rotation) {
 
 Void SceneObject::setScale(const glm::vec3& scale) {
     _scale = scale;
-
     _updateScaleMatrix();
 }
 
@@ -170,7 +155,7 @@ Void SceneObject::setZScale(Float scale) {
 Void SceneObject::moveTo(
     const glm::vec3& position,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     Renderer::shared().addAnimationToQueue(
         Animation::Type::move,
@@ -186,7 +171,7 @@ Void SceneObject::moveTo(
     Float y,
     Float z,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveTo({ x, y, z }, duration, callback);
 }
@@ -194,7 +179,7 @@ Void SceneObject::moveTo(
 Void SceneObject::moveToX(
     Float x,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveTo({ x, _position.y, _position.z }, duration, callback);
 }
@@ -202,7 +187,7 @@ Void SceneObject::moveToX(
 Void SceneObject::moveToY(
     Float y,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveTo({ _position.x, y, _position.z }, duration, callback);
 }
@@ -210,7 +195,7 @@ Void SceneObject::moveToY(
 Void SceneObject::moveToZ(
     Float z,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveTo({ _position.x, _position.y, z }, duration, callback);
 }
@@ -218,7 +203,7 @@ Void SceneObject::moveToZ(
 Void SceneObject::moveToXY(
     const glm::vec2& xy,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveTo({ xy.x, xy.y, _position.z }, duration, callback);
 }
@@ -227,7 +212,7 @@ Void SceneObject::moveToXY(
     Float x,
     Float y,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveToXY({ x, y }, duration, callback);
 }
@@ -235,7 +220,7 @@ Void SceneObject::moveToXY(
 Void SceneObject::moveToXZ(
     const glm::vec2& xz,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveTo({ xz.x, _position.y, xz.y }, duration, callback);
 }
@@ -244,7 +229,7 @@ Void SceneObject::moveToXZ(
     Float x,
     Float z,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveToXZ({ x, z }, duration, callback);
 }
@@ -252,7 +237,7 @@ Void SceneObject::moveToXZ(
 Void SceneObject::moveToYZ(
     const glm::vec2& yz,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveTo({ _position.x, yz.x, yz.y }, duration, callback);
 }
@@ -261,7 +246,7 @@ Void SceneObject::moveToYZ(
     Float y,
     Float z,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveToYZ({ y, z }, duration, callback);
 }
@@ -269,93 +254,48 @@ Void SceneObject::moveToYZ(
 Void SceneObject::moveBy(
     const glm::vec3& vector,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveTo(_position + vector, duration, callback);
 }
 
-Void SceneObject::moveBy(
-    Float x,
-    Float y,
-    Float z,
-    Double duration,
-    const std::function<Void (Bool)>& callback
-) {
+Void SceneObject::moveBy(Float x, Float y, Float z, Double duration, const Callback& callback) {
     moveBy({ x, y, z }, duration, callback);
 }
 
-Void SceneObject::moveByX(
-    Float x,
-    Double duration,
-    const std::function<Void (Bool)>& callback
-) {
+Void SceneObject::moveByX(Float x, Double duration, const Callback& callback) {
     moveBy({ x, 0.0f, 0.0f }, duration, callback);
 }
 
-Void SceneObject::moveByY(
-    Float y,
-    Double duration,
-    const std::function<Void (Bool)>& callback
-) {
+Void SceneObject::moveByY(Float y, Double duration, const Callback& callback) {
     moveBy({ 0.0f, y, 0.0f }, duration, callback);
 }
 
-Void SceneObject::moveByZ(
-    Float z,
-    Double duration,
-    const std::function<Void (Bool)>& callback
-) {
+Void SceneObject::moveByZ(Float z, Double duration, const Callback& callback) {
     moveBy({ 0.0f, 0.0f, z }, duration, callback);
 }
 
-Void SceneObject::moveByXY(
-    const glm::vec2& xy,
-    Double duration,
-    const std::function<Void (Bool)>& callback
-) {
+Void SceneObject::moveByXY(const glm::vec2& xy, Double duration, const Callback& callback) {
     moveBy({ xy.x, xy.y, 0.0f }, duration, callback);
 }
 
-Void SceneObject::moveByXY(
-    Float x,
-    Float y,
-    Double duration,
-    const std::function<Void (Bool)>& callback
-) {
+Void SceneObject::moveByXY(Float x, Float y, Double duration, const Callback& callback) {
     moveByXY({ x, y }, duration, callback);
 }
 
-Void SceneObject::moveByXZ(
-    const glm::vec2& xz,
-    Double duration,
-    const std::function<Void (Bool)>& callback
-) {
+Void SceneObject::moveByXZ(const glm::vec2& xz, Double duration, const Callback& callback) {
     moveBy({ xz.x, 0.0f, xz.y }, duration, callback);
 }
 
-Void SceneObject::moveByXZ(
-    Float x,
-    Float z,
-    Double duration,
-    const std::function<Void (Bool)>& callback
-) {
+Void SceneObject::moveByXZ(Float x, Float z, Double duration, const Callback& callback) {
     moveByXZ({ x, z }, duration, callback);
 }
 
-Void SceneObject::moveByYZ(
-    const glm::vec2& yz,
-    Double duration,
-    const std::function<Void (Bool)>& callback
-) {
+Void SceneObject::moveByYZ(const glm::vec2& yz, Double duration, const Callback& callback) {
     moveBy({ 0.0f, yz.x, yz.y }, duration, callback);
 }
 
-Void SceneObject::moveByYZ(
-    Float y,
-    Float z,
-    Double duration,
-    const std::function<Void (Bool)>& callback
-) {
+Void SceneObject::moveByYZ(Float y, Float z, Double duration, const Callback& callback) {
     moveByYZ({ y, z }, duration, callback);
 }
 

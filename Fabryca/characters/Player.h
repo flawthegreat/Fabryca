@@ -9,15 +9,23 @@ namespace Game {
 
 class Player final: public Character {
 public:
-    Player(
-        Int maxHealth,
-        const Model& model,
-        Double movementSpeed = 1,
-        const Point& location = { 0, 0 }
-    );
+    Player(const Configuration& configuration);
 
+
+    Void spawn() override;
+    Void despawn() override;
+    Void die() override;
 
     Void attackCharacter(Character& character) const override;
+
+private:
+    mutable Model _sword;
+
+    const Int _attackDamage;
+
+
+    Void _setupSword();
+    Void _playAttackAnimation() const;
 };
 
 }

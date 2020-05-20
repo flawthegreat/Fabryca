@@ -124,9 +124,12 @@ UInt Shader::_uniformLocation(const std::string& name) const {
 
     const Int location = glGetUniformLocation(_id, name.c_str());
 
+#ifdef DEBUG
     if (location == -1) {
         std::cerr << "Uniform \"" << name << "\" does not exist." << std::endl;
     }
+#endif
+
     _uniformLocationCache.emplace(name, location);
 
     return location;

@@ -28,8 +28,6 @@ public:
     Void setMinimumWindowSize(const Size& size) const;
     Void setWindowSize(const Size& size) const;
 
-    Void registerWindowSizeCallback(const std::function<Void (Int, Int)>& callback);
-
     KeyState keyState(Key key);
     Bool keyWasPressed(Key key);
 
@@ -37,14 +35,11 @@ public:
     Void swapBuffers() const;
     Void pollEvents() const;
 
-    Void terminate() const;
-
 private:
     static WindowManager* _shared;
     
     Window* _window;
     std::vector<KeyState> _previousKeyState;
-    std::vector<std::function<Void (Int, Int)>> _windowSizeCallbacks;
 
 
     WindowManager();
@@ -54,6 +49,8 @@ private:
     WindowManager& operator= (WindowManager&&) = delete;
     ~WindowManager();
 
+
+    Void _terminate() const;
 
     static Void _windowSizeDidChange(Window* window, Int width, Int height);
 };

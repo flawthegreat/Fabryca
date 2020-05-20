@@ -15,16 +15,16 @@ using namespace Game;
 Enemy::Enemy(
     Int maxHealth,
     const Model& model,
-    Double movementSpeed,
+    const Configuration& configuration,
     const Point& location,
     Int attackDamage
 ):
-    Character(maxHealth, model, movementSpeed, location),
+    Character(maxHealth, model, configuration, location),
     _attackDamage(attackDamage)
 {}
 
 Enemy* Enemy::create(
-    const Configuration& Configuration,
+    const Configuration& gameConfiguration,
     Type type,
     Strength strength,
     const Point& location
@@ -33,16 +33,15 @@ Enemy* Enemy::create(
     Int _strength = static_cast<Int>(strength);
 
     Int attackDamage = Random::valueInRange(
-        Configuration.settings()["enemies"][_type]["stats"][_strength]["minAttackDamage"].asInt(),
-        Configuration.settings()["enemies"][_type]["stats"][_strength]["maxAttackDamage"].asInt()
+        gameConfiguration.settings()["enemies"][_type]["stats"][_strength]["minAttackDamage"].asInt(),
+        gameConfiguration.settings()["enemies"][_type]["stats"][_strength]["maxAttackDamage"].asInt()
     );
     Int maxHealth = Random::valueInRange(
-        Configuration.settings()["enemies"][_type]["stats"][_strength]["minMaxHealth"].asInt(),
-        Configuration.settings()["enemies"][_type]["stats"][_strength]["maxMaxHealth"].asInt()
+        gameConfiguration.settings()["enemies"][_type]["stats"][_strength]["minMaxHealth"].asInt(),
+        gameConfiguration.settings()["enemies"][_type]["stats"][_strength]["maxMaxHealth"].asInt()
     );
-    Double movementSpeed = Configuration.settings()["enemies"][_type]["movementSpeed"].asDouble();
-    const Model& model = *Configuration.models().at(
-        Configuration.settings()["enemies"][_type]["model"].asString()
+    const Model& model = *gameConfiguration.models().at(
+        gameConfiguration.settings()["enemies"][_type]["model"].asString()
     );
 
 
@@ -51,7 +50,7 @@ Enemy* Enemy::create(
         return new ForestDemon(
             maxHealth,
             model,
-            movementSpeed,
+            gameConfiguration,
             location,
             attackDamage
         );
@@ -59,7 +58,7 @@ Enemy* Enemy::create(
         return new HoveringBeast(
             maxHealth,
             model,
-            movementSpeed,
+            gameConfiguration,
             location,
             attackDamage
         );
@@ -67,7 +66,7 @@ Enemy* Enemy::create(
         return new PoisonousMonster(
             maxHealth,
             model,
-            movementSpeed,
+            gameConfiguration,
             location,
             attackDamage
         );
@@ -76,4 +75,8 @@ Enemy* Enemy::create(
     }
 
     return nullptr;
+}
+
+Void Enemy::attackCharacter(Character& character) const {
+    character.decreaseHealthBy(_attackDamage);
 }

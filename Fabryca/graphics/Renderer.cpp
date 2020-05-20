@@ -11,11 +11,7 @@
 Renderer* Renderer::_shared = nullptr;
 
 Renderer& Renderer::shared() {
-    if (!_shared) {
-        _shared = new Renderer();
-
-        WindowManager::shared().registerWindowSizeCallback(_windowSizeDidChange);
-    }
+    if (!_shared) { _shared = new Renderer(); }
 
     return *_shared;
 }
@@ -29,13 +25,12 @@ Renderer::Renderer():
     _lightPosition(0.0f, 1.0f, 0.0f),
     _lightDirection(0.0f, -1.0f, 0.0f),
     _lightPower(1.0f),
-    _viewDistance(100),
+    _viewDistance(100.0f),
     _camera(),
-    _horizontalViewBounds(-1e10, 1e10, -1e10, 1e10)
+    _horizontalViewBounds(-1e10f, 1e10f, -1e10f, 1e10f)
 {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-//    glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -91,13 +86,8 @@ Void Renderer::clear() const {
 Void Renderer::draw() const {
     Renderer::shared().clear();
 
-    for (const auto& model: _opaqueDrawQueue) {
-        _drawModel(*model);
-    }
-
-    for (const auto& [priority, model]: _transparentDrawQueue) {
-        _drawModel(*model);
-    }
+    for (const auto& model: _opaqueDrawQueue) { _drawModel(*model); }
+    for (const auto& [priority, model]: _transparentDrawQueue) { _drawModel(*model); }
 }
 
 Void Renderer::addModelToDrawQueue(const Model& model, Int priority) {
@@ -137,6 +127,11 @@ Void Renderer::removeModelFromDrawQueue(const Model& model) {
 
         return;
     }
+}
+
+Void Renderer::clearDrawQueue() {
+    _opaqueDrawQueue.clear();
+    _transparentDrawQueue.clear();
 }
 
 Void Renderer::processAnimations() {
@@ -199,10 +194,9 @@ Void Renderer::processAnimations() {
     for (Int i = static_cast<Int>(_animationQueue.size()) - 1; i >= 0; --i) {
         if (_animationQueue[i].timeLeft > 0.0) continue;
 
-        if (_animationQueue[i].callback) {
-            _animationQueue[i].callback(true);
-        }
+        Callback callback = _animationQueue[i].callback;
         _animationQueue.erase(_animationQueue.begin() + i);
+        if (callback) { callback(true); }
     }
 }
 
@@ -211,15 +205,14 @@ Void Renderer::addAnimationToQueue(
     SceneObject& object,
     const glm::vec3& newValue,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     for (Animation& _animation: _animationQueue) {
         if (_animation.type != type || _animation.object != &object) continue;
 
-        if (_animation.callback) {
-            _animation.callback(false);
-        }
+        auto _callback = _animation.callback;
         _animation = Animation(type, object, newValue, duration, callback);
+        if (_callback) { _callback(false); }
 
         return;
     }
@@ -231,10 +224,9 @@ Void Renderer::addAnimationToQueue(const Animation& animation) {
     for (Animation& _animation: _animationQueue) {
         if (_animation.type != animation.type || _animation.object != animation.object) continue;
 
-        if (_animation.callback) {
-            _animation.callback(false);
-        }
+        Callback callback = _animation.callback;
         _animation = animation;
+        if (callback) { callback(false); }
 
         return;
     }
@@ -242,32 +234,36 @@ Void Renderer::addAnimationToQueue(const Animation& animation) {
     _animationQueue.emplace_back(animation);
 }
 
-Void Renderer::removeAnimationFromQueue(const Animation& animation, Bool withCallback) {
+Void Renderer::removeAnimationFromQueue(const Animation& animation) {
     for (auto itr = _animationQueue.begin(); itr != _animationQueue.end(); ++itr) {
         if (itr->type != animation.type || itr->object != animation.object) continue;
 
-        if (withCallback && itr->callback) {
-            itr->callback(false);
-        }
+        Callback callback = itr->callback;
         _animationQueue.erase(itr);
+        if (callback) { callback(false); }
 
         return;
     }
+}
+
+Void Renderer::removeAnimationsForModel(const Model& model) {
+    for (Int i = static_cast<Int>(_animationQueue.size()) - 1; i >= 0; --i) {
+        if (_animationQueue[i].object != &model) continue;
+
+        Callback callback = _animationQueue[i].callback;
+        _animationQueue.erase(_animationQueue.begin() + i);
+        if (callback) { callback(false); }
+    }
+}
+
+Void Renderer::clearAnimationQueue() {
+    _animationQueue.clear();
 }
 
 Void Renderer::updateProjectionMatrix() {
     _projectionMatrix = glm::perspective(
         glm::radians(_camera.fieldOfView()),
         WindowManager::shared().windowAspectRatio(),
-        0.1f,
-        100.0f
-    );
-}
-
-Void Renderer::updateProjectionMatrix(Int windowWidth, Int windowHeight) {
-    _projectionMatrix = glm::perspective(
-        glm::radians(_camera.fieldOfView()),
-        static_cast<Float>(windowWidth) / windowHeight,
         0.1f,
         100.0f
     );
@@ -350,7 +346,7 @@ Void Renderer::setCameraFocusPoint(Float x, Float y, Float z) {
 Void Renderer::moveCameraTo(
     const glm::vec3& position,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     addAnimationToQueue(Animation::Type::move, _camera, position, duration, callback);
 }
@@ -360,7 +356,7 @@ Void Renderer::moveCameraTo(
     Float y,
     Float z,
     Double duration,
-    const std::function<Void (Bool)>& callback
+    const Callback& callback
 ) {
     moveCameraTo({ x, y, z }, duration, callback);
 }
@@ -383,11 +379,4 @@ Void Renderer::_drawModel(const Model& model) const {
     model.shader.setUniform("uHorizontalViewBounds", _horizontalViewBounds);
 
     glDrawArrays(GL_TRIANGLES, 0, static_cast<UInt>(model.mesh.vertexCount()));
-}
-
-Void Renderer::_windowSizeDidChange(Int width, Int height) {
-    _shared->updateProjectionMatrix(width, height);
-
-    _shared->processAnimations();
-    _shared->draw();
 }
