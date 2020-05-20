@@ -30,6 +30,7 @@ public:
 
     Void addModelToDrawQueue(const Model& model, Int priority = 1);
     Void removeModelFromDrawQueue(const Model& model);
+    Void clearDrawQueue();
 
     Void processAnimations();
     Void addAnimationToQueue(
@@ -37,13 +38,14 @@ public:
         SceneObject& object,
         const glm::vec3& newValue,
         Double duration,
-        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+        const Callback& callback = Callback()
     );
     Void addAnimationToQueue(const Animation& animation);
-    Void removeAnimationFromQueue(const Animation& animation, Bool withCallback = true);
+    Void removeAnimationFromQueue(const Animation& animation);
+    Void removeAnimationsForModel(const Model& model);
+    Void clearAnimationQueue();
 
     Void updateProjectionMatrix();
-    Void updateProjectionMatrix(Int windowWidth, Int windowHeight);
     Void updateViewMatrix();
 
     Void setLightPosition(const glm::vec3& position);
@@ -69,14 +71,14 @@ public:
     Void moveCameraTo(
         const glm::vec3& position,
         Double duration,
-        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+        const Callback& callback = Callback()
     );
     Void moveCameraTo(
         Float x,
         Float y,
         Float z,
         Double duration,
-        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+        const Callback& callback = Callback()
     );
 
 private:
@@ -107,6 +109,4 @@ private:
 
 
     Void _drawModel(const Model& model) const;
-
-    static Void _windowSizeDidChange(Int width, Int height);
 };

@@ -2,10 +2,10 @@
 #include "utility/NumericAttribute.h"
 #include "utility/Random.h"
 #include "utility/Filepath.h"
+#include "utility/EventManager.h"
 
 #include <gtest/gtest.h>
 #include <cmath>
-#include <iostream>
 
 
 TEST(PointTest, DistanceToOrigin) {
@@ -104,4 +104,35 @@ TEST(RandomTest, Range) {
             EXPECT_GE(randomValue, leftBound);
         }
     }
+}
+
+TEST(FilepathTest, Format) {
+    Filepath path = "/hello/";
+    ASSERT_EQ(path.stringValue(), path.rootFilepath() + "/hello");
+
+    ASSERT_EQ(
+        (path/Filepath("/folder/file.txt")).stringValue(),
+        path.rootFilepath() + "/hello/folder/file.txt"
+    );
+}
+
+TEST(EventManagerTest, EventListenters) {
+    struct SimpleStruct: EventManager<SimpleStruct> {
+        Void performAction() {
+            _postEvent("actionPerformed");
+        }
+    };
+
+    SimpleStruct instance;
+    Bool testCheck = false;
+    instance.addEventListener("actionPerformed", [&](SimpleStruct* instance) {
+        testCheck = true;
+    });
+
+    instance.addEventListener("nonExistingAction", [&](SimpleStruct* instance) {
+        ASSERT_TRUE(false);
+    });
+
+    instance.performAction();
+    ASSERT_TRUE(testCheck);
 }

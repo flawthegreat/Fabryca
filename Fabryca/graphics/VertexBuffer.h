@@ -14,13 +14,16 @@ public:
 
     VertexBuffer();
     VertexBuffer(const Void* data, UInt dataSize);
+
     VertexBuffer(const VertexBuffer& vertexBuffer);
     VertexBuffer& operator= (const VertexBuffer& vertexBuffer);
     VertexBuffer(VertexBuffer&& vertexBuffer);
     VertexBuffer& operator= (VertexBuffer&& vertexBuffer);
+    
     ~VertexBuffer();
 
 
+    UInt id() const;
     UInt dataSize() const;
 
     Void bind() const;

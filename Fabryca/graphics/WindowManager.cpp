@@ -10,20 +10,17 @@
 WindowManager* WindowManager::_shared = nullptr;
 
 WindowManager& WindowManager::shared() {
-    if (!_shared) {
-        _shared = new WindowManager();
-    }
+    if (!_shared) { _shared = new WindowManager(); }
 
     return *_shared;
 }
 
 WindowManager::WindowManager():
     _window(nullptr),
-    _previousKeyState(std::vector<KeyState>(350, KeyState::released)),
-    _windowSizeCallbacks()
+    _previousKeyState(std::vector<KeyState>(350, KeyState::released))
 {
     if (!glfwInit()) {
-        terminate();
+        _terminate();
         throw std::runtime_error("Failed to init GLFW.");
     }
 
@@ -38,19 +35,19 @@ WindowManager::WindowManager():
 }
 
 WindowManager::~WindowManager() {
-    terminate();
+    _terminate();
 }
 
 Void WindowManager::initWindow(const Size& size, const std::string& title) {
     if (_window) {
-        terminate();
+        _terminate();
         throw std::runtime_error("Window already exists.");
     }
 
     _window = glfwCreateWindow(size.width, size.height, title.c_str(), nullptr, nullptr);
 
     if (!_window) {
-        terminate();
+        _terminate();
         throw std::runtime_error("Failed to create window.");
     }
 
@@ -58,11 +55,14 @@ Void WindowManager::initWindow(const Size& size, const std::string& title) {
     glfwSwapInterval(1);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        terminate();
+        _terminate();
         throw std::runtime_error("Failed to load OpenGL.");
     }
 
-    glfwSetWindowSizeCallback(_window, _windowSizeDidChange);
+    glfwSetFramebufferSizeCallback(_window, _windowSizeDidChange);
+    Int dimensions[4] = { 0 };
+    glGetIntegerv(GL_VIEWPORT, dimensions);
+    _windowSizeDidChange(_window, dimensions[2], dimensions[3]);
 }
 
 Size WindowManager::windowSize() const {
@@ -94,12 +94,6 @@ Void WindowManager::setWindowSize(const Size& size) const {
     glfwSetWindowSize(_window, size.width, size.height);
 }
 
-Void WindowManager::registerWindowSizeCallback(const std::function<Void (Int, Int)>& callback) {
-    _windowSizeCallbacks.emplace_back(callback);
-    const auto [width, height] = WindowManager::shared().windowSize();
-    callback(width, height);
-}
-
 KeyState WindowManager::keyState(Key key) {
     const KeyState state = static_cast<KeyState>(glfwGetKey(_window, static_cast<Int>(key)));
     _previousKeyState[static_cast<Int>(key)] = state;
@@ -126,14 +120,17 @@ Void WindowManager::pollEvents() const {
     glfwPollEvents();
 }
 
-Void WindowManager::terminate() const {
+Void WindowManager::_terminate() const {
     glfwTerminate();
 }
 
 Void WindowManager::_windowSizeDidChange(Window* window, Int width, Int height) {
-    for (const std::function<Void (Int, Int)>& callback: _shared->_windowSizeCallbacks) {
-        callback(width, height);
-    }
+    glViewport(0, 0, width, height);
+
+    Renderer::shared().updateProjectionMatrix();
+
+    Renderer::shared().processAnimations();
+    Renderer::shared().draw();
 
     glfwSwapBuffers(window);
 }

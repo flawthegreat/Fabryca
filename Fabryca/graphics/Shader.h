@@ -11,10 +11,12 @@
 class Shader final {
 public:
     Shader(const Filepath& filepath);
+
     Shader(const Shader& shader);
     Shader& operator= (const Shader& shader);
     Shader(Shader&& shader);
     Shader& operator= (Shader&& shader);
+    
     ~Shader();
 
 

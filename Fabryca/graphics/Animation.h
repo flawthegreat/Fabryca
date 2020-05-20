@@ -19,7 +19,7 @@ struct Animation final {
     glm::vec3 newValue;
     Double timeLeft;
     Time lastStepTime;
-    std::function<Void (Bool)> callback;
+    Callback callback;
 
 
     Animation(
@@ -27,7 +27,7 @@ struct Animation final {
         SceneObject& object,
         const glm::vec3& newValue,
         Double duration,
-        const std::function<Void (Bool)>& callback = std::function<Void (Bool)>()
+        const Callback& callback = Callback()
     );
 };
 

@@ -45,6 +45,7 @@ set(
     ${PROJECT_DIR}/utility/Random.cpp
     ${PROJECT_DIR}/utility/JSON.cpp 
     ${PROJECT_DIR}/utility/Filepath.cpp 
+    ${PROJECT_DIR}/utility/EventManager.h 
 
     ${PROJECT_DIR}/graphics/WindowManager.cpp
     ${PROJECT_DIR}/graphics/Renderer.cpp
@@ -63,17 +64,11 @@ set(
     ${PROJECT_DIR}/Configuration.cpp
     ${PROJECT_DIR}/GameInstance.cpp
     ${PROJECT_DIR}/Terrain.cpp
-    ${PROJECT_DIR}/TerrainBlock.cpp
-    ${PROJECT_DIR}/Structure.cpp
-
-    ${PROJECT_DIR}/items/Item.cpp
-    ${PROJECT_DIR}/items/weapons/Weapon.cpp
-    ${PROJECT_DIR}/items/CureItem.cpp
-    ${PROJECT_DIR}/items/KeyItem.cpp
+    ${PROJECT_DIR}/HealthIndicator.cpp
+    ${PROJECT_DIR}/NumberDisplayer.cpp
 
     ${PROJECT_DIR}/characters/Character.cpp 
     ${PROJECT_DIR}/characters/Player.cpp 
-
     ${PROJECT_DIR}/characters/enemies/Enemy.cpp 
     ${PROJECT_DIR}/characters/enemies/ForestDemon.cpp 
     ${PROJECT_DIR}/characters/enemies/HoveringBeast.cpp 
@@ -134,7 +129,7 @@ if (TESTING STREQUAL ON)
 
         ${PROJECT_DIR}/testing/Tests.cpp 
         ${PROJECT_DIR}/testing/UtilityTest.cpp 
-        ${PROJECT_DIR}/testing/CharacterTest.cpp
+        ${PROJECT_DIR}/testing/GraphicsTest.cpp
         ${PROJECT_DIR}/testing/GameTest.cpp
     )
 

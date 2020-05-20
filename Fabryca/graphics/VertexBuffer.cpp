@@ -86,6 +86,10 @@ VertexBuffer::~VertexBuffer() {
     }
 }
 
+UInt VertexBuffer::id() const {
+    return _id;
+}
+
 UInt VertexBuffer::dataSize() const {
     return _dataSize;
 }

@@ -11,13 +11,10 @@ public:
     PoisonousMonster(
         Int maxHealth,
         const Model& model,
-        Double movementSpeed,
+        const Configuration& configuration,
         const Point& location,
         Int attackDamage
     );
-
-
-    Void attackCharacter(Character& character) const override;
 };
 
 }

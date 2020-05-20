@@ -59,6 +59,8 @@ using Char = char;
 using Float = float;
 using Double = double;
 
+using Callback = std::function<Void (Bool)>;
+
 
 struct Size {
     Int width;

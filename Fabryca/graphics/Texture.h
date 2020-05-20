@@ -10,10 +10,12 @@
 class Texture final {
 public:
     Texture(const Filepath& filepath);
+
     Texture(const Texture& texture);
     Texture& operator= (const Texture& texture);
     Texture(Texture&& texture);
     Texture& operator= (Texture&& texture);
+    
     ~Texture();
 
 
