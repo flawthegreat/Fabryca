@@ -28,8 +28,6 @@ public:
 private:
     Model _frame;
     Model _bar;
-
-    Int _visibleBarCount;
 };
 
 }
